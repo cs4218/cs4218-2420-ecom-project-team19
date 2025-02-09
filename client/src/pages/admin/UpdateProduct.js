@@ -64,15 +64,12 @@ const UpdateProduct = () => {
     e.preventDefault();
 
     if (price < 0) {
-      console.log("price", price)
       return toast.error("something went wrong");
     }
     if (!Number.isInteger(Number(quantity)) || quantity < 0) {
-      console.log("quantity", quantity, typeof(price))
       return toast.error("something went wrong");
     }
     if (shipping !== "1" && shipping !== "0" && shipping !== true && shipping !== false) {
-      console.log(shipping)
       return toast.error("something went wrong");
     }
 

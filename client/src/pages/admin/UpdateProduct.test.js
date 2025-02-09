@@ -275,27 +275,27 @@ describe('UpdateProduct Component', () => {
         });
 
         // equivalence partitioning: failed product update
-        // it('toast appears when error occurs on failed product update', async () => {
-        //     axios.put.mockResolvedValueOnce({
-        //         data: { success: false, message: UPDATE_ERROR_MESSAGE },
-        //     })
+        it('toast appears when error occurs on failed product update', async () => {
+            axios.put.mockResolvedValueOnce({
+                data: { success: false, message: UPDATE_ERROR_MESSAGE },
+            })
 
-        //     render(
-        //         <MemoryRouter>
-        //             <Routes>
-        //                 <Route path='/' element={<UpdateProduct />} />
-        //             </Routes>
-        //         </MemoryRouter>
-        //     )
+            render(
+                <MemoryRouter>
+                    <Routes>
+                        <Route path='/' element={<UpdateProduct />} />
+                    </Routes>
+                </MemoryRouter>
+            )
 
-        //     await waitFor(() => {
-        //         const nameInput = screen.getByDisplayValue(mockProductCategory1.name);
-        //         fireEvent.change(nameInput, { target: { value: '' } });
-        //         fireEvent.click(screen.getByText(updateProductButtonText));
-        //     });
-        //     expect(axios.put).toHaveBeenCalled();
-        //     expect(toast.error).toHaveBeenCalledWith(UPDATE_ERROR_MESSAGE);
-        // });
+            await waitFor(() => {
+                const nameInput = screen.getByDisplayValue(mockProductCategory1.name);
+                fireEvent.change(nameInput, { target: { value: '' } });
+                fireEvent.click(screen.getByText(updateProductButtonText));
+            });
+            expect(axios.put).toHaveBeenCalled();
+            expect(toast.error).toHaveBeenCalledWith(UPDATE_ERROR_MESSAGE);
+        });
 
         // equivalence partitioning: unknown error during product update
         it('toast appears when unknown error occurs on update', async () => {
