@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import CategoryForm from "../../components/Form/CategoryForm";
 import { Modal } from "antd";
+
 const CreateCategory = () => {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
@@ -26,20 +27,20 @@ const CreateCategory = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error("somthing went wrong in input form");
+      toast.error("something went wrong in input form");
     }
   };
 
   //get all cat
   const getAllCategory = async () => {
     try {
-      const { data } = await axios.get("/api/v1/category/get-category");
-      if (data.success) {
-        setCategories(data.category);
+      const response = await axios.get("/api/v1/category/get-category");
+      if (response && response.data && response.data.success) {
+        setCategories(response.data.category);
       }
     } catch (error) {
       console.log(error);
-      toast.error("Something wwent wrong in getting catgeory");
+      toast.error("Something went wrong in getting category");
     }
   };
 
@@ -65,7 +66,7 @@ const CreateCategory = () => {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error("Somtihing went wrong");
+      toast.error("something went wrong");
     }
   };
   //delete category
@@ -82,7 +83,7 @@ const CreateCategory = () => {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error("Somtihing went wrong");
+      toast.error("something went wrong");
     }
   };
   return (
@@ -95,11 +96,7 @@ const CreateCategory = () => {
           <div className="col-md-9">
             <h1>Manage Category</h1>
             <div className="p-3 w-50">
-              <CategoryForm
-                handleSubmit={handleSubmit}
-                value={name}
-                setValue={setName}
-              />
+              <CategoryForm handleSubmit={handleSubmit} value={name} setValue={setName} />
             </div>
             <div className="w-75">
               <table className="table">
@@ -111,31 +108,27 @@ const CreateCategory = () => {
                 </thead>
                 <tbody>
                   {categories?.map((c) => (
-                    <>
-                      <tr>
-                        <td key={c._id}>{c.name}</td>
-                        <td>
-                          <button
-                            className="btn btn-primary ms-2"
-                            onClick={() => {
-                              setVisible(true);
-                              setUpdatedName(c.name);
-                              setSelected(c);
-                            }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn btn-danger ms-2"
-                            onClick={() => {
-                              handleDelete(c._id);
-                            }}
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    </>
+                    <tr key={c._id}>
+                      <td>{c.name}</td>
+                      <td>
+                        <button
+                          className="btn btn-primary ms-2"
+                          onClick={() => {
+                            setVisible(true);
+                            setUpdatedName(c.name);
+                            setSelected(c);
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="btn btn-danger ms-2"
+                          onClick={() => handleDelete(c._id)}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
                   ))}
                 </tbody>
               </table>
@@ -145,11 +138,7 @@ const CreateCategory = () => {
               footer={null}
               visible={visible}
             >
-              <CategoryForm
-                value={updatedName}
-                setValue={setUpdatedName}
-                handleSubmit={handleUpdate}
-              />
+              <CategoryForm value={updatedName} setValue={setUpdatedName} handleSubmit={handleUpdate} />
             </Modal>
           </div>
         </div>
