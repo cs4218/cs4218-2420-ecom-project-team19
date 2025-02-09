@@ -21,13 +21,13 @@ const CreateProduct = () => {
   //get all category
   const getAllCategory = async () => {
     try {
-      const { data } = await axios.get("/api/v1/category/get-category");
-      if (data?.success) {
-        setCategories(data?.category);
+      const response = await axios.get("/api/v1/category/get-category");
+      if (response && response.data && response.data.success) {
+        setCategories(response.data.category);
       }
     } catch (error) {
       console.log(error);
-      toast.error("Something wwent wrong in getting catgeory");
+      toast.error("Something went wrong in getting category");
     }
   };
 
@@ -38,6 +38,17 @@ const CreateProduct = () => {
   //create product function
   const handleCreate = async (e) => {
     e.preventDefault();
+
+    if (price === "" || price === null || price < 0) {
+      return toast.error("something went wrong");
+    }
+    if (quantity === "" || quantity === null || !Number.isInteger(Number(quantity)) || quantity < 0) {
+      return toast.error("something went wrong");
+    }
+    if (shipping === "" || shipping === null || (shipping !== "1" && shipping !== "0" && shipping !== true && shipping !== false)) {
+      return toast.error("something went wrong");
+    }
+
     try {
       const productData = new FormData();
       productData.append("name", name);

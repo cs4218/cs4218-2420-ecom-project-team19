@@ -30,7 +30,6 @@ const UpdateProduct = () => {
       setId(data.product._id);
       setDescription(data.product.description);
       setPrice(data.product.price);
-      setPrice(data.product.price);
       setQuantity(data.product.quantity);
       setShipping(data.product.shipping);
       setCategory(data.product.category._id);
@@ -42,12 +41,13 @@ const UpdateProduct = () => {
     getSingleProduct();
     //eslint-disable-next-line
   }, []);
+
   //get all category
   const getAllCategory = async () => {
     try {
-      const { data } = await axios.get("/api/v1/category/get-category");
-      if (data?.success) {
-        setCategories(data?.category);
+      const response = await axios.get("/api/v1/category/get-category");
+      if (response && response.data && response.data.success) {
+        setCategories(response.data.category);
       }
     } catch (error) {
       console.log(error);
@@ -62,6 +62,20 @@ const UpdateProduct = () => {
   //create product function
   const handleUpdate = async (e) => {
     e.preventDefault();
+
+    if (price < 0) {
+      console.log("price", price)
+      return toast.error("something went wrong");
+    }
+    if (!Number.isInteger(Number(quantity)) || quantity < 0) {
+      console.log("quantity", quantity, typeof(price))
+      return toast.error("something went wrong");
+    }
+    if (shipping !== "1" && shipping !== "0" && shipping !== true && shipping !== false) {
+      console.log(shipping)
+      return toast.error("something went wrong");
+    }
+
     try {
       const productData = new FormData();
       productData.append("name", name);
