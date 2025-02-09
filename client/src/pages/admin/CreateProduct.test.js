@@ -48,7 +48,7 @@ describe('CreateProduct Component', () => {
         price: '100',
         quantity: '10',
         category: 'cat1',
-        shipping: true,
+        shipping: 1,
         imageAlt: 'test',
         imageName: 'test.png',
         imageType: 'image/png'
