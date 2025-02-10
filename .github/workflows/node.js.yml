@@ -34,9 +34,9 @@ jobs:
     - name: Install client dependencies
       run: cd client && npm install && cd ..
 
-    # - name: Run tests
-    #   run: npm test
+    - name: Run Jest tests
+      run: npm test
 
     # set to frontend tests for now
-    - name: Run frontend tests
-      run: npm run test:frontend
+    # - name: Run frontend tests
+    #   run: npm run test:frontend
