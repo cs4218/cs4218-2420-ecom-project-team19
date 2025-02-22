@@ -190,8 +190,83 @@ describe('AdminOrders Component', () => {
     // to check if all the statuses are available in the menu
     // as well as if the status can be changed
     // however, there is an issue where fireEvent.click will not show additional options
-    // TODO:
-    // describe('Status Tests', () => {
+
+    // reason for no coverage of AdminOrders.js 36-42, 73
+
+    // describe("Order Status Tests", () => {
+    //     it("updates order status when a new status is selected", async () => {
+    //         useAuth.mockReturnValue([{ token: "mock-token" }, jest.fn()]);
+    //         axios.get.mockResolvedValue({ data: [mockOrder1] });
+    //         axios.put.mockResolvedValue({ data: { success: true } });
+    
+    //         await act(async () => {
+    //             render(
+    //                 <MemoryRouter initialEntries={["/admin/orders"]}>
+    //                     <Routes>
+    //                         <Route path="/admin/orders" element={<AdminOrders />} />
+    //                     </Routes>
+    //                 </MemoryRouter>
+    //             );
+    //         });
+    
+    //         await waitFor(() => {
+    //             expect(screen.getByText(mockOrder1.buyer.name)).toBeInTheDocument();
+    //         });
+    
+    //         // Find the Select dropdown
+    //         const selectDropdown = screen.getByDisplayValue(mockOrder1.status);
+    //         expect(selectDropdown).toBeInTheDocument();
+    
+    //         // Simulate changing the order status
+    //         fireEvent.change(selectDropdown, { target: { value: "Shipped" } });
+    
+    //         await waitFor(() => {
+    //             expect(axios.put).toHaveBeenCalledWith(
+    //                 `/api/v1/auth/order-status/${mockOrder1._id}`,
+    //                 { status: "Shipped" }
+    //             );
+    //         });
+    
+    //         expect(axios.get).toHaveBeenCalledWith("/api/v1/auth/all-orders");
+    //     });
+    
+    //     it("handles API error gracefully when updating status fails", async () => {
+    //         useAuth.mockReturnValue([{ token: "mock-token" }, jest.fn()]);
+    //         axios.get.mockResolvedValue({ data: [mockOrder1] });
+    //         axios.put.mockRejectedValue(new Error("Failed to update status"));
+    
+    //         await act(async () => {
+    //             render(
+    //                 <MemoryRouter initialEntries={["/admin/orders"]}>
+    //                     <Routes>
+    //                         <Route path="/admin/orders" element={<AdminOrders />} />
+    //                     </Routes>
+    //                 </MemoryRouter>
+    //             );
+    //         });
+    
+    //         await waitFor(() => {
+    //             expect(screen.getByText(mockOrder1.buyer.name)).toBeInTheDocument();
+    //         });
+    
+    //         // Find the Select dropdown
+    //         const selectDropdown = screen.getByDisplayValue(mockOrder1.status);
+    //         expect(selectDropdown).toBeInTheDocument();
+    
+    //         // Simulate changing the order status
+    //         fireEvent.change(selectDropdown, { target: { value: "Shipped" } });
+    
+    //         await waitFor(() => {
+    //             expect(axios.put).toHaveBeenCalledWith(
+    //                 `/api/v1/auth/order-status/${mockOrder1._id}`,
+    //                 { status: "Shipped" }
+    //             );
+    //         });
+    
+    //         // Ensure that axios.get is not called again due to the error
+    //         expect(axios.get).not.toHaveBeenCalledTimes(2);
+    //     });
     // });
+    
     
 });
