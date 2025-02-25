@@ -1,39 +1,57 @@
-export default {
-    // Name for test suite
-    displayName: "backend",
-  
-    // Backend should use Node.js environment
-    testEnvironment: "node",
-  
-    // Look for test files inside `controllers`, `models`, `middlewares`, `routes`, `helpers`
-    testMatch: ["<rootDir>/{controllers,models,middlewares,routes,helpers}/**/*.test.js"],
-  
-    // Collect coverage from all backend logic files
-    collectCoverage: true,
-    collectCoverageFrom: [
-      "controllers/**/*.js",
-      "models/**/*.js",
-      "middlewares/**/*.js",
-      "routes/**/*.js",
-      "helpers/**/*.js",
-      "!**/node_modules/**",   // Exclude node_modules
-      "!**/config/**"          // Exclude config files
-    ],
-  
-    // Set code coverage thresholds
-    coverageThreshold: {
-      global: {
-        statements: 90,
-        branches: 80,
-        functions: 90,
-        lines: 90,
-      },
-    },
-  
-    // Ensure Jest doesn't process unnecessary files
-    transformIgnorePatterns: ["/node_modules/"],
-  
-    // Setup file for initializing global mocks
-    // setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
-  };
+import axios from 'axios';
+import { useAuth } from '../../context/auth';
+import PrivateRoute from './Private';
+import { act } from 'react-dom/test-utils';
+
+jest.mock('axios');
+jest.mock('../../context/auth', () => ({
+  useAuth: jest.fn(),
+}));
+
+describe('PrivateRoute Logic (Node Environment)', () => {
+  let consoleSpy;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleSpy.mockRestore();
+  });
+
+  it('should call auth check when auth token is present', async () => {
+    useAuth.mockReturnValue([{ token: 'token' }, jest.fn()]);
+    axios.get.mockResolvedValueOnce({ data: { ok: true } });
+
+    await act(async () => {
+      PrivateRoute(); // Calls the function (not rendering)
+    });
+
+    expect(axios.get).toHaveBeenCalledWith('/api/v1/auth/user-auth');
+  });
+
+  it('should log error if auth check fails', async () => {
+    const error = new Error('Failed to query auth status');
+    axios.get.mockRejectedValueOnce(error);
+    useAuth.mockReturnValue([{ token: 'token' }, jest.fn()]);
+
+    await act(async () => {
+      PrivateRoute();
+    });
+
+    expect(consoleSpy).toHaveBeenCalledWith(error);
+    expect(axios.get).toHaveBeenCalledWith('/api/v1/auth/user-auth');
+  });
+
+  it('should not call auth check if no token is present', async () => {
+    useAuth.mockReturnValue([{}, jest.fn()]);
+
+    await act(async () => {
+      PrivateRoute();
+    });
+
+    expect(axios.get).not.toHaveBeenCalled();
+  });
+});
   
