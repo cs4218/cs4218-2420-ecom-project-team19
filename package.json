@@ -48,7 +48,7 @@
     "sonarqube-scanner": "^3.3.0"
   },
   "jest": {
-    "testEnvironment": "jest-environment-jsdom",
+    "testEnvironment": "node",
     "transform": {
       "^.+\\.jsx?$": "babel-jest"
     },
