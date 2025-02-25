@@ -226,18 +226,18 @@ describe('createProductController', () => {
     it(description, async () => {
       let consoleErrorMock;
       let consoleLogMock;
-  
+
       // Suppress errors only for the specific test case
       if (description === 'should throw an error when an error is thrown') {
-        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
-        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => { });
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
       }
-  
+
       await createProductController(modifyRequest(request), response);
-  
+
       expect(response.status).toHaveBeenCalledWith(expectedStatus);
       expect(response.send).toHaveBeenCalledWith(expectedResponse);
-  
+
       // Restore console.error and console.log after the test
       if (consoleErrorMock) {
         consoleErrorMock.mockRestore();
@@ -247,7 +247,7 @@ describe('createProductController', () => {
       }
     });
   });
-  
+
 });
 
 describe('getProductController', () => {
@@ -271,7 +271,7 @@ describe('getProductController', () => {
   const testCases = [
     {
       description: 'should get products',
-      modifyMock: () => {}, // No modification needed
+      modifyMock: () => { }, // No modification needed
       expectedStatus: 200,
       expectedResponse: {
         success: true,
@@ -301,8 +301,8 @@ describe('getProductController', () => {
 
       // Suppress errors only for the specific test case
       if (description === 'should throw an error when an error is thrown') {
-        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
-        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => { });
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
       }
 
       modifyMock(); // Apply modifications to mocks
@@ -342,7 +342,7 @@ describe('getSingleProductController', () => {
   const testCases = [
     {
       description: 'should get a single product',
-      modifyMock: () => {}, // No modification needed
+      modifyMock: () => { }, // No modification needed
       requestParams: { params: { slug: 'product' } },
       expectedStatus: 200,
       expectedResponse: {
@@ -373,8 +373,8 @@ describe('getSingleProductController', () => {
 
       // Suppress errors only for the error test case
       if (description === 'should throw an error if an error is thrown') {
-        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
-        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => { });
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
       }
 
       modifyMock(); // Apply mock modifications
@@ -419,7 +419,7 @@ describe('productPhotoController', () => {
   const testCases = [
     {
       description: 'should retrieve a product photo',
-      modifyMock: () => {}, // No modification needed
+      modifyMock: () => { }, // No modification needed
       requestParams: { params: { pid: '123' } },
       expectedStatus: 200,
       expectedHeaders: { 'Content-type': 'image/jpeg' },
@@ -447,8 +447,8 @@ describe('productPhotoController', () => {
 
       // Suppress errors only for the error test case
       if (description === 'should throw an error if an error is thrown') {
-        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
-        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => { });
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
       }
 
       modifyMock(); // Apply mock modifications
@@ -489,7 +489,7 @@ describe('deleteProductController', () => {
   const testCases = [
     {
       description: 'should delete a product',
-      modifyMock: () => {}, // No modification needed
+      modifyMock: () => { }, // No modification needed
       requestParams: { params: { pid: '123' } },
       expectedStatus: 200,
       expectedResponse: {
@@ -519,8 +519,8 @@ describe('deleteProductController', () => {
 
       // Suppress errors only for the error test case
       if (description === 'should throw an error if an error is thrown') {
-        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
-        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => { });
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
       }
 
       modifyMock(); // Apply mock modifications
@@ -707,8 +707,8 @@ describe('updateProductController', () => {
 
       // Suppress errors only for the error test case
       if (description === 'should throw an error when an error is thrown') {
-        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
-        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => { });
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
       }
 
       await updateProductController(modifyRequest(request), response);
@@ -800,8 +800,8 @@ describe('productFiltersController', () => {
 
       // Suppress errors only for the error test case
       if (description === 'should throw an error when an error is thrown') {
-        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
-        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => { });
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
       }
 
       await productFiltersController(modifyRequest(request), response);
@@ -837,7 +837,7 @@ describe('productCountController', () => {
   const testCases = [
     {
       description: 'should get count of specified products',
-      modifyMock: () => {}, // No modification needed
+      modifyMock: () => { }, // No modification needed
       expectedStatus: 200,
       expectedResponse: {
         success: true,
@@ -865,8 +865,8 @@ describe('productCountController', () => {
 
       // Suppress errors only for the error test case
       if (description === 'should throw an error when an error is thrown') {
-        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
-        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => { });
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
       }
 
       modifyMock(); // Apply mock modifications
@@ -948,8 +948,8 @@ describe('productListController', () => {
 
       // Suppress errors only for the error test case
       if (description === 'should throw an error when an error is thrown') {
-        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
-        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => { });
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
       }
 
       await productListController(modifyRequest(requestParams), response);
@@ -986,7 +986,7 @@ describe('searchProductController', () => {
   const testCases = [
     {
       description: 'should retrieve queried product',
-      modifyMock: () => {}, // No modification needed
+      modifyMock: () => { }, // No modification needed
       requestParams: { params: { keyword: 'product' } },
       expectedResponseType: 'json',
       expectedResponse: mockedProductQueryData,
@@ -1013,8 +1013,8 @@ describe('searchProductController', () => {
 
       // Suppress errors only for the error test case
       if (description === 'should throw an error when an error is thrown') {
-        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
-        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => { });
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
       }
 
       modifyMock(); // Apply mock modifications
@@ -1059,7 +1059,7 @@ describe('relatedProductController', () => {
   const testCases = [
     {
       description: 'should retrieve all related products',
-      modifyMock: () => {}, // No modification needed
+      modifyMock: () => { }, // No modification needed
       requestParams: { params: { pid: '123', cid: '123' } },
       expectedStatus: 200,
       expectedResponse: {
@@ -1089,8 +1089,8 @@ describe('relatedProductController', () => {
 
       // Suppress errors only for the error test case
       if (description === 'should throw an error when an error is thrown') {
-        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
-        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => { });
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
       }
 
       modifyMock(); // Apply mock modifications
@@ -1166,8 +1166,8 @@ describe('productCategoryController', () => {
 
       // Suppress errors only for the error test case
       if (description === 'should throw an error when an error is thrown') {
-        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
-        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => { });
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
       }
 
       modifyMock(); // Apply mock modifications
@@ -1193,44 +1193,63 @@ describe('braintreeTokenController', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-
     request = {};
   });
 
-  it('should obtain braintree controller token', async () => {
-    gateway.clientToken.generate.mockImplementationOnce((_, callback) => {
-      callback(null, token);
+  const testCases = [
+    {
+      description: 'should obtain braintree controller token',
+      modifyMock: () => {
+        gateway.clientToken.generate.mockImplementationOnce((_, callback) => {
+          callback(null, token);
+        });
+      },
+      expectedResponse: token,
+    },
+    {
+      description: 'should return error when an error occurs',
+      modifyMock: () => {
+        gateway.clientToken.generate.mockImplementationOnce((_, callback) => {
+          callback(new Error('Error while getting token'), null);
+        });
+      },
+      expectedStatus: 500,
+      expectedResponse: new Error('Error while getting token'),
+    },
+    {
+      description: 'should log an error when generate() throws an error',
+      modifyMock: () => {
+        gateway.clientToken.generate.mockImplementationOnce((_, callback) => {
+          throw new Error('Error while getting token');
+        });
+      },
+      expectConsoleLog: true,
+    },
+  ];
+
+  testCases.forEach(({ description, modifyMock, expectedStatus, expectedResponse, expectConsoleLog }) => {
+    it(description, async () => {
+      let consoleLogMock;
+
+      if (expectConsoleLog) {
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
+      }
+
+      modifyMock();
+
+      await braintreeTokenController(request, response);
+
+      if (expectedStatus) {
+        expect(response.status).toHaveBeenCalledWith(expectedStatus);
+      }
+      if (expectedResponse) {
+        expect(response.send).toHaveBeenCalledWith(expectedResponse);
+      }
+      if (expectConsoleLog) {
+        expect(consoleLogMock).toHaveBeenCalled();
+        consoleLogMock.mockRestore();
+      }
     });
-
-    await braintreeTokenController(request, response);
-
-    expect(response.send).toHaveBeenCalledWith(token);
-  });
-
-  it('should throw an error when an error is thrown', async () => {
-    const error = new Error('Error while getting token');
-
-    gateway.clientToken.generate.mockImplementationOnce((_, callback) => {
-      callback(error, null);
-    });
-
-    await braintreeTokenController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith(error);
-  });
-
-  it('should trigger a console log when generate() throws an error', async () => {
-    const error = new Error('Error while getting token');
-    const log = jest.spyOn(console, 'log').mockImplementationOnce(() => { });
-
-    gateway.clientToken.generate.mockImplementationOnce((_, callback) => {
-      throw error;
-    });
-
-    await braintreeTokenController(request, response);
-
-    expect(log).toBeCalledWith(error);
   });
 });
 
@@ -1253,39 +1272,62 @@ describe('brainTreePaymentController', () => {
     orderModel.prototype.save.mockResolvedValue(txnSuccess);
   });
 
-  it('should be able to make payment', async () => {
-    gateway.transaction.sale.mockImplementationOnce((_, callback) => {
-      callback(null, txnSuccess);
+  const testCases = [
+    {
+      description: 'should be able to make payment',
+      modifyMock: () => {
+        gateway.transaction.sale.mockImplementationOnce((_, callback) => {
+          callback(null, txnSuccess);
+        });
+      },
+      expectedResponseType: 'json',
+      expectedResponse: { ok: true },
+    },
+    {
+      description: 'should return error when an error occurs',
+      modifyMock: () => {
+        gateway.transaction.sale.mockImplementationOnce((_, callback) => {
+          callback(new Error('Error while getting token'), null);
+        });
+      },
+      expectedStatus: 500,
+      expectedResponse: new Error('Error while getting token'),
+    },
+    {
+      description: 'should log an error when sale() throws an error',
+      modifyMock: () => {
+        gateway.transaction.sale.mockImplementationOnce((_, callback) => {
+          throw new Error('Error while getting token');
+        });
+      },
+      expectConsoleLog: true,
+    },
+  ];
+
+  testCases.forEach(({ description, modifyMock, expectedStatus, expectedResponse, expectedResponseType, expectConsoleLog }) => {
+    it(description, async () => {
+      let consoleLogMock;
+
+      if (expectConsoleLog) {
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
+      }
+
+      modifyMock();
+
+      await brainTreePaymentController(request, response);
+
+      if (expectedStatus) {
+        expect(response.status).toHaveBeenCalledWith(expectedStatus);
+      }
+      if (expectedResponseType === 'json') {
+        expect(response.json).toHaveBeenCalledWith(expectedResponse);
+      } else if (expectedResponse) {
+        expect(response.send).toHaveBeenCalledWith(expectedResponse);
+      }
+      if (expectConsoleLog) {
+        expect(consoleLogMock).toHaveBeenCalled();
+        consoleLogMock.mockRestore();
+      }
     });
-
-    await brainTreePaymentController(request, response);
-
-    expect(response.json).toHaveBeenCalledWith({ ok: true });
-  });
-
-  it('should throw an error when an error is thrown', async () => {
-    const error = new Error('Error while getting token');
-
-    gateway.transaction.sale.mockImplementationOnce((_, callback) => {
-      callback(error, null);
-    });
-
-    await brainTreePaymentController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith(error);
-  });
-
-  it('should trigger a console log when sale() throws an error', async () => {
-    const error = new Error('Error while getting token');
-    const log = jest.spyOn(console, 'log').mockImplementationOnce(() => { });
-
-    gateway.transaction.sale.mockImplementationOnce((_, callback) => {
-      throw error;
-    });
-
-    await brainTreePaymentController(request, response);
-
-    expect(log).toBeCalledWith(error);
   });
 });
