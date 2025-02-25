@@ -1,11 +1,12 @@
+/**
+ * @jest-environment jsdom
+ */
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { Outlet } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/auth';
 import PrivateRoute from './Private';
-import Spinner from '../Spinner';
 
 jest.mock('axios');
 jest.mock('../../context/auth', () => ({
@@ -30,12 +31,12 @@ describe('PrivateRoute Component', () => {
     consoleSpy.mockRestore();
   });
 
-  it('renders Spinner by default if no auth token is present', () => {
+  it('renders Spinner by default if no auth token is present', async () => {
     useAuth.mockReturnValue([{}, jest.fn()]);
-    
+
     render(<PrivateRoute />);
-    
-    expect(screen.getByTestId('spinner')).toBeInTheDocument();
+
+    expect(await screen.findByTestId('spinner')).toBeInTheDocument();
     expect(axios.get).not.toHaveBeenCalled();
     expect(consoleSpy).not.toHaveBeenCalled();
   });
@@ -46,10 +47,8 @@ describe('PrivateRoute Component', () => {
 
     render(<PrivateRoute />);
 
-    await waitFor(() => {
-      expect(screen.getByTestId('spinner')).toBeInTheDocument();
-      expect(axios.get).toHaveBeenCalledWith('/api/v1/auth/user-auth');
-    });
+    expect(await screen.findByTestId('spinner')).toBeInTheDocument();
+    expect(axios.get).toHaveBeenCalledWith('/api/v1/auth/user-auth');
 
     expect(consoleSpy).not.toHaveBeenCalled();
   });
@@ -60,10 +59,8 @@ describe('PrivateRoute Component', () => {
 
     render(<PrivateRoute />);
 
-    await waitFor(() => {
-      expect(screen.getByTestId('spinner')).toBeInTheDocument();
-      expect(axios.get).toHaveBeenCalledWith('/api/v1/auth/user-auth');
-    });
+    expect(await screen.findByTestId('spinner')).toBeInTheDocument();
+    expect(axios.get).toHaveBeenCalledWith('/api/v1/auth/user-auth');
 
     expect(consoleSpy).not.toHaveBeenCalled();
   });
