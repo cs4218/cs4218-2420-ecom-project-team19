@@ -87,7 +87,6 @@ describe('createProductController', () => {
         quantity: 10,
         shipping: true,
       },
-
       files: {
         photo: {
           size: 32,
@@ -102,266 +101,297 @@ describe('createProductController', () => {
     productModel.prototype.save.mockResolvedValue(mockedProductData);
   });
 
-  it('should create a new product', async () => {
-    await createProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(201);
-    expect(response.send).toHaveBeenCalledWith({
-      success: true,
-      message: 'Product Created Successfully',
-      products: mockedProductData
-    });
-  });
-
-  it('should create a new product when no shipping is provided', async () => {
-    request.fields.shipping = null;
-
-    const mockedProductData = {
-      name: 'product',
-      slug: 'product',
-      description: 'product description',
-      price: 100,
-      category: '123',
-      quantity: 10,
-      photo: {
-        data: Buffer.from([1, 2, 3, 4]),
-        contentType: 'image/jpeg',
+  const testCases = [
+    {
+      description: 'should create a new product',
+      modifyRequest: (req) => req,
+      expectedStatus: 201,
+      expectedResponse: {
+        success: true,
+        message: 'Product Created Successfully',
+        products: mockedProductData,
       },
-      shipping: false
-    };
+    },
+    {
+      description: 'should create a new product when no shipping is provided',
+      modifyRequest: (req) => {
+        req.fields.shipping = null;
+        return req;
+      },
+      expectedStatus: 201,
+      expectedResponse: {
+        success: true,
+        message: 'Product Created Successfully',
+        products: mockedProductData,
+      },
+    },
+    {
+      description: 'should throw an error when name is missing',
+      modifyRequest: (req) => {
+        req.fields.name = null;
+        return req;
+      },
+      expectedStatus: 500,
+      expectedResponse: { error: 'Name is Required' },
+    },
+    {
+      description: 'should throw an error when description is missing',
+      modifyRequest: (req) => {
+        req.fields.description = null;
+        return req;
+      },
+      expectedStatus: 500,
+      expectedResponse: { error: 'Description is Required' },
+    },
+    {
+      description: 'should throw an error when price is missing',
+      modifyRequest: (req) => {
+        req.fields.price = null;
+        return req;
+      },
+      expectedStatus: 500,
+      expectedResponse: { error: 'Price is Required' },
+    },
+    {
+      description: 'should throw an error when category is missing',
+      modifyRequest: (req) => {
+        req.fields.category = null;
+        return req;
+      },
+      expectedStatus: 500,
+      expectedResponse: { error: 'Category is Required' },
+    },
+    {
+      description: 'should throw an error when quantity is missing',
+      modifyRequest: (req) => {
+        req.fields.quantity = null;
+        return req;
+      },
+      expectedStatus: 500,
+      expectedResponse: { error: 'Quantity is Required' },
+    },
+    {
+      description: 'should create a new product when photo is missing',
+      modifyRequest: (req) => {
+        req.files.photo = null;
+        return req;
+      },
+      expectedStatus: 201,
+      expectedResponse: {
+        success: true,
+        message: 'Product Created Successfully',
+        products: mockedProductData,
+      },
+    },
+    {
+      description: 'should create a new product when photo is small enough',
+      modifyRequest: (req) => {
+        req.files.photo.size = 1000;
+        return req;
+      },
+      expectedStatus: 201,
+      expectedResponse: {
+        success: true,
+        message: 'Product Created Successfully',
+        products: mockedProductData,
+      },
+    },
+    {
+      description: 'should throw an error when photo is too large',
+      modifyRequest: (req) => {
+        req.files.photo.size = 1000001;
+        return req;
+      },
+      expectedStatus: 500,
+      expectedResponse: {
+        error: 'photo is Required and should be less then 1mb',
+      },
+    },
+    {
+      description: 'should throw an error when an error is thrown',
+      modifyRequest: (req) => {
+        productModel.prototype.save.mockRejectedValueOnce(new Error('Error in creating product'));
+        return req;
+      },
+      expectedStatus: 500,
+      expectedResponse: {
+        success: false,
+        error: new Error('Error in creating product'),
+        message: 'Error in creating product',
+      },
+    },
+  ];
 
-    productModel.prototype.save.mockResolvedValueOnce(mockedProductData);
-    await createProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(201);
-    expect(response.send).toHaveBeenCalledWith({
-      success: true,
-      message: 'Product Created Successfully',
-      products: mockedProductData
+  testCases.forEach(({ description, modifyRequest, expectedStatus, expectedResponse }) => {
+    it(description, async () => {
+      let consoleErrorMock;
+      let consoleLogMock;
+  
+      // Suppress errors only for the specific test case
+      if (description === 'should throw an error when an error is thrown') {
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+      }
+  
+      await createProductController(modifyRequest(request), response);
+  
+      expect(response.status).toHaveBeenCalledWith(expectedStatus);
+      expect(response.send).toHaveBeenCalledWith(expectedResponse);
+  
+      // Restore console.error and console.log after the test
+      if (consoleErrorMock) {
+        consoleErrorMock.mockRestore();
+      }
+      if (consoleLogMock) {
+        consoleLogMock.mockRestore();
+      }
     });
   });
-
-  it('should throw an error when name is missing', async () => {
-    request.fields.name = null;
-
-    await createProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({ error: 'Name is Required' });
-  });
-
-  it('should throw an error when description is missing', async () => {
-    request.fields.description = null;
-
-    await createProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({
-      error: 'Description is Required',
-    });
-  });
-
-  it('should throw an error when price is missing', async () => {
-    request.fields.price = null;
-
-    await createProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({ error: 'Price is Required' });
-  });
-
-  it('should throw an error when category is missing', async () => {
-    request.fields.category = null;
-
-    await createProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({
-      error: 'Category is Required',
-    });
-  });
-
-  it('should throw an error when quantity is missing', async () => {
-    request.fields.quantity = null;
-
-    await createProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({
-      error: 'Quantity is Required',
-    });
-  });
-
-  it('should create a new product when photo is missing', async () => {
-    request.files.photo = null;
-
-    const mockedProductData = {
-      name: 'product',
-      slug: 'product',
-      description: 'product description',
-      price: 100,
-      category: '123',
-      quantity: 10,
-      shipping: true,
-    };
-
-    productModel.prototype.save.mockResolvedValueOnce(mockedProductData);
-    await createProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(201);
-    expect(response.send).toHaveBeenCalledWith({
-      success: true,
-      message: 'Product Created Successfully',
-      products: mockedProductData
-    });
-  });
-
-  it('should create a new product when photo is small enough', async () => {
-    request.files.photo.size = 1000;
-
-    productModel.prototype.save.mockResolvedValueOnce(mockedProductData);
-    await createProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(201);
-    expect(response.send).toHaveBeenCalledWith({
-      success: true,
-      message: 'Product Created Successfully',
-      products: mockedProductData
-    });
-  });
-
-  it('should throw an error when photo is too large', async () => {
-    request.files.photo.size = 1000001;
-
-    await createProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({
-      error: 'photo is Required and should be less then 1mb',
-    });
-  });
-
-  it('should throw an error when an error is thrown', async () => {
-    // Suppress all possible console outputs for the test
-    const consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
-
-    const error = new Error('Error in creating product');
-
-    productModel.prototype.save.mockRejectedValueOnce(error);
-    await createProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({
-      success: false,
-      error: error,
-      message: 'Error in creating product'
-    });
-
-    // Restore original console behavior after the test
-    consoleLogMock.mockRestore();
-  });
+  
 });
 
 describe('getProductController', () => {
   const mockedProductQueryData = [mockedProductData];
 
-  const mockedProductQuery = {
-    populate: jest.fn().mockReturnThis(),
-    select: jest.fn().mockReturnThis(),
-    limit: jest.fn().mockReturnThis(),
-    sort: jest.fn().mockResolvedValue(mockedProductQueryData),
-  };
+  let mockedProductQuery;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    productModel.find.mockReturnValue(mockedProductQuery);
-  });
-
-  it('should get products', async () => {
-    await getProductController({}, response);
-
-    expect(response.status).toHaveBeenCalledWith(200);
-    expect(response.send).toHaveBeenCalledWith({
-      success: true,
-      counTotal: mockedProductQueryData.length,
-      message: 'All Products',
-      products: mockedProductQueryData
-    });
-  });
-
-  it('should throw an error when an error is thrown', async () => {
-    const consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
-
-    const error = new Error('Error in getting products');
-
-    const mockedProductQuery = {
+    mockedProductQuery = {
       populate: jest.fn().mockReturnThis(),
       select: jest.fn().mockReturnThis(),
       limit: jest.fn().mockReturnThis(),
-      sort: jest.fn().mockRejectedValue(error),
+      sort: jest.fn().mockResolvedValue(mockedProductQueryData),
     };
 
     productModel.find.mockReturnValue(mockedProductQuery);
-    await getProductController({}, response);
+  });
 
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({
-      message: 'Error in getting products',
-      success: false,
-      error: error,
+  const testCases = [
+    {
+      description: 'should get products',
+      modifyMock: () => {}, // No modification needed
+      expectedStatus: 200,
+      expectedResponse: {
+        success: true,
+        counTotal: mockedProductQueryData.length,
+        message: 'All Products',
+        products: mockedProductQueryData,
+      },
+    },
+    {
+      description: 'should throw an error when an error is thrown',
+      modifyMock: () => {
+        mockedProductQuery.sort.mockRejectedValueOnce(new Error('Error in getting products'));
+      },
+      expectedStatus: 500,
+      expectedResponse: {
+        message: 'Error in getting products',
+        success: false,
+        error: new Error('Error in getting products'),
+      },
+    },
+  ];
+
+  testCases.forEach(({ description, modifyMock, expectedStatus, expectedResponse }) => {
+    it(description, async () => {
+      let consoleErrorMock;
+      let consoleLogMock;
+
+      // Suppress errors only for the specific test case
+      if (description === 'should throw an error when an error is thrown') {
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+      }
+
+      modifyMock(); // Apply modifications to mocks
+
+      await getProductController({}, response);
+
+      expect(response.status).toHaveBeenCalledWith(expectedStatus);
+      expect(response.send).toHaveBeenCalledWith(expectedResponse);
+
+      // Restore console.error and console.log after the test
+      if (consoleErrorMock) {
+        consoleErrorMock.mockRestore();
+      }
+      if (consoleLogMock) {
+        consoleLogMock.mockRestore();
+      }
     });
-    consoleLogMock.mockRestore();
   });
 });
 
 describe('getSingleProductController', () => {
   const mockedProductQueryData = mockedProductData;
-
-  const mockedProductQuery = {
-    findOne: jest.fn().mockReturnThis(),
-    select: jest.fn().mockReturnThis(),
-    populate: jest.fn().mockResolvedValue(mockedProductQueryData),
-  };
+  let mockedProductQuery;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    productModel.findOne.mockReturnValue(mockedProductQuery);
-  });
-
-  it('should get a single product', async () => {
-    await getSingleProductController({ params: { slug: 'product' } }, response);
-
-    expect(response.status).toHaveBeenCalledWith(200);
-    expect(response.send).toHaveBeenCalledWith({
-      success: true,
-      message: 'Single Product Fetched',
-      product: mockedProductQueryData,
-    });
-  });
-
-  it('should throw an error if an error is thrown', async () => {
-    const consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
-
-    const error = new Error('Error while getting single product');
-
-    const mockedProductQuery = {
+    mockedProductQuery = {
       findOne: jest.fn().mockReturnThis(),
       select: jest.fn().mockReturnThis(),
-      populate: jest.fn().mockRejectedValue(error),
+      populate: jest.fn().mockResolvedValue(mockedProductQueryData),
     };
 
     productModel.findOne.mockReturnValue(mockedProductQuery);
-    await getSingleProductController({ params: { slug: 'product' } }, response);
+  });
 
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({
-      success: false,
-      message: 'Error while getting single product',
-      error: error
+  const testCases = [
+    {
+      description: 'should get a single product',
+      modifyMock: () => {}, // No modification needed
+      requestParams: { params: { slug: 'product' } },
+      expectedStatus: 200,
+      expectedResponse: {
+        success: true,
+        message: 'Single Product Fetched',
+        product: mockedProductQueryData,
+      },
+    },
+    {
+      description: 'should throw an error if an error is thrown',
+      modifyMock: () => {
+        mockedProductQuery.populate.mockRejectedValueOnce(new Error('Error while getting single product'));
+      },
+      requestParams: { params: { slug: 'product' } },
+      expectedStatus: 500,
+      expectedResponse: {
+        success: false,
+        message: 'Error while getting single product',
+        error: new Error('Error while getting single product'),
+      },
+    },
+  ];
+
+  testCases.forEach(({ description, modifyMock, requestParams, expectedStatus, expectedResponse }) => {
+    it(description, async () => {
+      let consoleErrorMock;
+      let consoleLogMock;
+
+      // Suppress errors only for the error test case
+      if (description === 'should throw an error if an error is thrown') {
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+      }
+
+      modifyMock(); // Apply mock modifications
+
+      await getSingleProductController(requestParams, response);
+
+      expect(response.status).toHaveBeenCalledWith(expectedStatus);
+      expect(response.send).toHaveBeenCalledWith(expectedResponse);
+
+      // Restore console.error and console.log after the test
+      if (consoleErrorMock) {
+        consoleErrorMock.mockRestore();
+      }
+      if (consoleLogMock) {
+        consoleLogMock.mockRestore();
+      }
     });
-    consoleLogMock.mockRestore();
   });
 });
 
@@ -373,106 +403,152 @@ describe('productPhotoController', () => {
     },
   };
 
-  const mockedProductQuery = {
-    findById: jest.fn().mockReturnThis(),
-    select: jest.fn().mockResolvedValue(mockedProductQueryData),
-  };
+  let mockedProductQuery;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    productModel.findById.mockReturnValue(mockedProductQuery);
-  });
-
-  it('should retrieve a product photo', async () => {
-    await productPhotoController({ params: { pid: '123' } }, response);
-
-    expect(response.set).toHaveBeenCalledWith('Content-type', 'image/jpeg');
-    expect(response.status).toHaveBeenCalledWith(200);
-    expect(response.send).toHaveBeenCalledWith(
-      mockedProductQueryData.photo.data
-    );
-  });
-
-  it('should throw an error if an error is thrown', async () => {
-    const consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
-
-    const error = new Error('Error while getting photo');
-
-    const mockedProductQuery = {
+    mockedProductQuery = {
       findById: jest.fn().mockReturnThis(),
-      select: jest.fn().mockRejectedValue(error),
+      select: jest.fn().mockResolvedValue(mockedProductQueryData),
     };
 
     productModel.findById.mockReturnValue(mockedProductQuery);
-    await productPhotoController({ params: { pid: '123' } }, response);
+  });
 
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({
-      success: false,
-      message: 'Error while getting photo',
-      error: error,
+  const testCases = [
+    {
+      description: 'should retrieve a product photo',
+      modifyMock: () => {}, // No modification needed
+      requestParams: { params: { pid: '123' } },
+      expectedStatus: 200,
+      expectedHeaders: { 'Content-type': 'image/jpeg' },
+      expectedResponse: mockedProductQueryData.photo.data,
+    },
+    {
+      description: 'should throw an error if an error is thrown',
+      modifyMock: () => {
+        mockedProductQuery.select.mockRejectedValueOnce(new Error('Error while getting photo'));
+      },
+      requestParams: { params: { pid: '123' } },
+      expectedStatus: 500,
+      expectedResponse: {
+        success: false,
+        message: 'Error while getting photo',
+        error: new Error('Error while getting photo'),
+      },
+    },
+  ];
+
+  testCases.forEach(({ description, modifyMock, requestParams, expectedStatus, expectedHeaders, expectedResponse }) => {
+    it(description, async () => {
+      let consoleErrorMock;
+      let consoleLogMock;
+
+      // Suppress errors only for the error test case
+      if (description === 'should throw an error if an error is thrown') {
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+      }
+
+      modifyMock(); // Apply mock modifications
+
+      await productPhotoController(requestParams, response);
+
+      if (expectedHeaders) {
+        expect(response.set).toHaveBeenCalledWith('Content-type', expectedHeaders['Content-type']);
+      }
+      expect(response.status).toHaveBeenCalledWith(expectedStatus);
+      expect(response.send).toHaveBeenCalledWith(expectedResponse);
+
+      // Restore console.error and console.log after the test
+      if (consoleErrorMock) {
+        consoleErrorMock.mockRestore();
+      }
+      if (consoleLogMock) {
+        consoleLogMock.mockRestore();
+      }
     });
-
-    consoleLogMock.mockRestore();
   });
 });
 
 describe('deleteProductController', () => {
-  const mockedProductQuery = {
-    findByIdAndDelete: jest.fn().mockReturnThis(),
-    select: jest.fn().mockResolvedValue({}),
-  };
+  let mockedProductQuery;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    productModel.findByIdAndDelete.mockReturnValue(mockedProductQuery);
-  });
-
-  it('should delete a product', async () => {
-    await deleteProductController({ params: { pid: '123' } }, response);
-
-    expect(response.status).toHaveBeenCalledWith(200);
-    expect(response.send).toHaveBeenCalledWith({
-      success: true,
-      message: 'Product Deleted successfully',
-    });
-  });
-
-  it('should throw an error if an error is thrown', async () => {
-    const consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
-
-    const error = new Error('Error while deleting product');
-
-    const mockedProductQuery = {
+    mockedProductQuery = {
       findByIdAndDelete: jest.fn().mockReturnThis(),
-      select: jest.fn((...args) => {
-        throw error;
-      }),
+      select: jest.fn().mockResolvedValue({}),
     };
 
     productModel.findByIdAndDelete.mockReturnValue(mockedProductQuery);
-    await deleteProductController({ params: { pid: '123' } }, response);
+  });
 
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({
-      success: false,
-      message: 'Error while deleting product',
-      error: error
+  const testCases = [
+    {
+      description: 'should delete a product',
+      modifyMock: () => {}, // No modification needed
+      requestParams: { params: { pid: '123' } },
+      expectedStatus: 200,
+      expectedResponse: {
+        success: true,
+        message: 'Product Deleted successfully',
+      },
+    },
+    {
+      description: 'should throw an error if an error is thrown',
+      modifyMock: () => {
+        mockedProductQuery.select.mockRejectedValueOnce(new Error('Error while deleting product'));
+      },
+      requestParams: { params: { pid: '123' } },
+      expectedStatus: 500,
+      expectedResponse: {
+        success: false,
+        message: 'Error while deleting product',
+        error: new Error('Error while deleting product'),
+      },
+    },
+  ];
+
+  testCases.forEach(({ description, modifyMock, requestParams, expectedStatus, expectedResponse }) => {
+    it(description, async () => {
+      let consoleErrorMock;
+      let consoleLogMock;
+
+      // Suppress errors only for the error test case
+      if (description === 'should throw an error if an error is thrown') {
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+      }
+
+      modifyMock(); // Apply mock modifications
+
+      await deleteProductController(requestParams, response);
+
+      expect(response.status).toHaveBeenCalledWith(expectedStatus);
+      expect(response.send).toHaveBeenCalledWith(expectedResponse);
+
+      // Restore console.error and console.log after the test
+      if (consoleErrorMock) {
+        consoleErrorMock.mockRestore();
+      }
+      if (consoleLogMock) {
+        consoleLogMock.mockRestore();
+      }
     });
-
-    consoleLogMock.mockRestore();
   });
 });
 
 describe('updateProductController', () => {
   let request;
+  let mockedProductQuery;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    const mockedProductQuery = {
+    mockedProductQuery = {
       findByIdAndUpdate: jest.fn().mockResolvedValue(mockedProductData),
       save: jest.fn().mockResolvedValue(mockedProductData),
     };
@@ -503,184 +579,156 @@ describe('updateProductController', () => {
     productModel.prototype.save.mockResolvedValue(mockedProductData);
   });
 
-  it('should update a product', async () => {
-    await updateProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(201);
-    expect(response.send).toHaveBeenCalledWith({
-      success: true,
-      message: 'Product Updated Successfully',
-      products: mockedProductData
-    });
-  });
-
-  it('should update a product with no shipping', async () => {
-    request.fields.shipping = null;
-
-    const mockedProductData = {
-      name: 'product',
-      slug: 'product',
-      description: 'product description',
-      price: 100,
-      category: '123',
-      quantity: 1000,
-      photo: {
-        data: Buffer.from([1, 2, 3, 4]),
-        contentType: 'image/jpeg',
+  const testCases = [
+    {
+      description: 'should update a product',
+      modifyRequest: (req) => req,
+      expectedStatus: 201,
+      expectedResponse: {
+        success: true,
+        message: 'Product Updated Successfully',
+        products: mockedProductData,
       },
-    };
+    },
+    {
+      description: 'should update a product with no shipping',
+      modifyRequest: (req) => {
+        req.fields.shipping = null;
+        return req;
+      },
+      expectedStatus: 201,
+      expectedResponse: {
+        success: true,
+        message: 'Product Updated Successfully',
+        products: mockedProductData,
+      },
+    },
+    {
+      description: 'should throw an error when name is missing',
+      modifyRequest: (req) => {
+        req.fields.name = null;
+        return req;
+      },
+      expectedStatus: 500,
+      expectedResponse: { error: 'Name is Required' },
+    },
+    {
+      description: 'should throw an error when description is missing',
+      modifyRequest: (req) => {
+        req.fields.description = null;
+        return req;
+      },
+      expectedStatus: 500,
+      expectedResponse: { error: 'Description is Required' },
+    },
+    {
+      description: 'should throw an error when price is missing',
+      modifyRequest: (req) => {
+        req.fields.price = null;
+        return req;
+      },
+      expectedStatus: 500,
+      expectedResponse: { error: 'Price is Required' },
+    },
+    {
+      description: 'should throw an error when category is missing',
+      modifyRequest: (req) => {
+        req.fields.category = null;
+        return req;
+      },
+      expectedStatus: 500,
+      expectedResponse: { error: 'Category is Required' },
+    },
+    {
+      description: 'should throw an error when quantity is missing',
+      modifyRequest: (req) => {
+        req.fields.quantity = null;
+        return req;
+      },
+      expectedStatus: 500,
+      expectedResponse: { error: 'Quantity is Required' },
+    },
+    {
+      description: 'should update a product when photo is missing',
+      modifyRequest: (req) => {
+        req.files.photo = null;
+        return req;
+      },
+      expectedStatus: 201,
+      expectedResponse: {
+        success: true,
+        message: 'Product Updated Successfully',
+        products: mockedProductData,
+      },
+    },
+    {
+      description: 'should update a product when photo is small enough',
+      modifyRequest: (req) => {
+        req.files.photo.size = 1000;
+        return req;
+      },
+      expectedStatus: 201,
+      expectedResponse: {
+        success: true,
+        message: 'Product Updated Successfully',
+        products: mockedProductData,
+      },
+    },
+    {
+      description: 'should throw an error when photo is too large',
+      modifyRequest: (req) => {
+        req.files.photo.size = 1000001;
+        return req;
+      },
+      expectedStatus: 500,
+      expectedResponse: {
+        error: 'photo is Required and should be less then 1mb',
+      },
+    },
+    {
+      description: 'should throw an error when an error is thrown',
+      modifyRequest: (req) => {
+        mockedProductQuery.save.mockRejectedValueOnce(new Error('Error in Updating product'));
+        return req;
+      },
+      expectedStatus: 500,
+      expectedResponse: {
+        success: false,
+        message: 'Error in Updating product',
+        error: new Error('Error in Updating product'),
+      },
+    },
+  ];
 
-    const mockedProductQuery = {
-      findByIdAndUpdate: jest.fn().mockResolvedValue(mockedProductData),
-      save: jest.fn().mockResolvedValue(mockedProductData),
-    };
+  testCases.forEach(({ description, modifyRequest, expectedStatus, expectedResponse }) => {
+    it(description, async () => {
+      let consoleErrorMock;
+      let consoleLogMock;
 
-    productModel.findByIdAndUpdate.mockResolvedValueOnce(mockedProductQuery);
-    productModel.prototype.save.mockResolvedValueOnce(mockedProductData);
-    await updateProductController(request, response);
+      // Suppress errors only for the error test case
+      if (description === 'should throw an error when an error is thrown') {
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+      }
 
-    expect(response.status).toHaveBeenCalledWith(201);
-    expect(response.send).toHaveBeenCalledWith({
-      success: true,
-      message: 'Product Updated Successfully',
-      products: mockedProductData
+      await updateProductController(modifyRequest(request), response);
+
+      expect(response.status).toHaveBeenCalledWith(expectedStatus);
+      expect(response.send).toHaveBeenCalledWith(expectedResponse);
+
+      // Restore console.error and console.log after the test
+      if (consoleErrorMock) {
+        consoleErrorMock.mockRestore();
+      }
+      if (consoleLogMock) {
+        consoleLogMock.mockRestore();
+      }
     });
-  });
-
-  it('should throw an error when name is missing', async () => {
-    request.fields.name = null;
-
-    await updateProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({ error: 'Name is Required' });
-  });
-
-  it('should throw an error when description is missing', async () => {
-    request.fields.description = null;
-
-    await updateProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({
-      error: 'Description is Required',
-    });
-  });
-
-  it('should throw an error when price is missing', async () => {
-    request.fields.price = null;
-
-    await updateProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({ error: 'Price is Required' });
-  });
-
-  it('should throw an error when category is missing', async () => {
-    request.fields.category = null;
-
-    await updateProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({
-      error: 'Category is Required',
-    });
-  });
-
-  it('should throw an error when quantity is missing', async () => {
-    request.fields.quantity = null;
-
-    await updateProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({
-      error: 'Quantity is Required',
-    });
-  });
-
-  it('should update a product when photo is missing', async () => {
-    request.files.photo = null;
-
-    const mockedProductData = {
-      pid: '123',
-      name: 'product',
-      slug: 'product',
-      description: 'product description',
-      price: 100,
-      category: '123',
-      quantity: 10,
-      shipping: true,
-    };
-
-    const mockedProductQuery = {
-      findByIdAndUpdate: jest.fn().mockResolvedValue(mockedProductData),
-      save: jest.fn().mockResolvedValue(mockedProductData),
-    };
-
-    productModel.findByIdAndUpdate.mockResolvedValueOnce(mockedProductQuery);
-    productModel.prototype.save.mockResolvedValueOnce(mockedProductData);
-    await updateProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(201);
-    expect(response.send).toHaveBeenCalledWith({
-      message: 'Product Updated Successfully',
-      products: mockedProductData,
-      success: true,
-    });
-  });
-
-  it('should update a product when photo is small enough', async () => {
-    request.files.photo.size = 1000;
-
-    productModel.prototype.save.mockResolvedValueOnce(mockedProductData);
-    await updateProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(201);
-    expect(response.send).toHaveBeenCalledWith({
-      message: 'Product Updated Successfully',
-      products: mockedProductData,
-      success: true,
-    });
-  });
-
-  it('should update a product when photo is too large', async () => {
-    request.files.photo.size = 1000001;
-
-    await updateProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({
-      error: 'photo is Required and should be less then 1mb',
-    });
-  });
-
-  it('should throw an error when an error is thrown', async () => {
-    const consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
-
-    const error = new Error('Error in Updating product');
-
-    const mockedProductQuery = {
-      findByIdAndUpdate: jest.fn().mockReturnThis(),
-      save: jest.fn().mockRejectedValue(error),
-    };
-
-    productModel.findByIdAndUpdate.mockReturnValue(mockedProductQuery);
-    await updateProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith({
-      message: 'Error in Updating product',
-      success: false,
-      error: error,
-    });
-
-    consoleLogMock.mockRestore();
   });
 });
 
 describe('productFiltersController', () => {
   let request;
-
   const mockedProductQueryData = [mockedProductData];
 
   beforeEach(() => {
@@ -696,103 +744,146 @@ describe('productFiltersController', () => {
     productModel.find.mockResolvedValue(mockedProductQueryData);
   });
 
-  it('should filter available products', async () => {
-    await productFiltersController(request, response);
+  const testCases = [
+    {
+      description: 'should filter available products',
+      modifyRequest: (req) => req,
+      expectedStatus: 200,
+      expectedResponse: {
+        success: true,
+        products: mockedProductQueryData,
+      },
+    },
+    {
+      description: 'should still filter if checked is missing',
+      modifyRequest: (req) => {
+        req.body.checked = [];
+        return req;
+      },
+      expectedStatus: 200,
+      expectedResponse: {
+        success: true,
+        products: mockedProductQueryData,
+      },
+    },
+    {
+      description: 'should still filter if radio is missing',
+      modifyRequest: (req) => {
+        req.body.radio = [];
+        return req;
+      },
+      expectedStatus: 200,
+      expectedResponse: {
+        success: true,
+        products: mockedProductQueryData,
+      },
+    },
+    {
+      description: 'should throw an error when an error is thrown',
+      modifyRequest: (req) => {
+        productModel.find.mockRejectedValueOnce(new Error('Error while filtering products'));
+        return req;
+      },
+      expectedStatus: 400,
+      expectedResponse: {
+        success: false,
+        message: 'Error while Filtering Products',
+        error: new Error('Error while filtering products'),
+      },
+    },
+  ];
 
-    expect(response.status).toHaveBeenCalledWith(200);
-    expect(response.send).toHaveBeenCalledWith({
-      success: true,
-      products: mockedProductQueryData,
+  testCases.forEach(({ description, modifyRequest, expectedStatus, expectedResponse }) => {
+    it(description, async () => {
+      let consoleErrorMock;
+      let consoleLogMock;
+
+      // Suppress errors only for the error test case
+      if (description === 'should throw an error when an error is thrown') {
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+      }
+
+      await productFiltersController(modifyRequest(request), response);
+
+      expect(response.status).toHaveBeenCalledWith(expectedStatus);
+      expect(response.send).toHaveBeenCalledWith(expectedResponse);
+
+      // Restore console.error and console.log after the test
+      if (consoleErrorMock) {
+        consoleErrorMock.mockRestore();
+      }
+      if (consoleLogMock) {
+        consoleLogMock.mockRestore();
+      }
     });
-  });
-
-  it('should still filter if checked is missing', async () => {
-    request.body.checked = [];
-
-    await productFiltersController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(200);
-    expect(response.send).toHaveBeenCalledWith({
-      success: true,
-      products: mockedProductQueryData,
-    });
-  });
-
-  it('should still filter if radio is missing', async () => {
-    request.body.radio = [];
-
-    await productFiltersController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(200);
-    expect(response.send).toHaveBeenCalledWith({
-      success: true,
-      products: mockedProductQueryData,
-    });
-  });
-
-  it('should throw an error when an error is thrown', async () => {
-    const consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
-
-    const error = new Error('Error while filtering products');
-
-    productModel.find.mockRejectedValueOnce(error);
-    await productFiltersController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(400);
-    expect(response.send).toHaveBeenCalledWith({
-      success: false,
-      message: 'Error while Filtering Products',
-      error: error
-    });
-
-    consoleLogMock.mockRestore();
   });
 });
 
 describe('productCountController', () => {
+  let mockedProductQuery;
+
   beforeEach(() => {
     jest.clearAllMocks();
-  });
 
-  it('should get count of specified products', async () => {
-    const mockedProductQuery = {
+    mockedProductQuery = {
       find: jest.fn().mockReturnThis(),
       estimatedDocumentCount: jest.fn().mockResolvedValue(10),
     };
 
     productModel.find.mockReturnValue(mockedProductQuery);
-
-    await productCountController({}, response);
-
-    expect(response.status).toHaveBeenCalledWith(200);
-    expect(response.send).toHaveBeenCalledWith({
-      success: true,
-      total: 10,
-    });
   });
 
-  it('should throw an error when an error is thrown', async () => {
-    const consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
+  const testCases = [
+    {
+      description: 'should get count of specified products',
+      modifyMock: () => {}, // No modification needed
+      expectedStatus: 200,
+      expectedResponse: {
+        success: true,
+        total: 10,
+      },
+    },
+    {
+      description: 'should throw an error when an error is thrown',
+      modifyMock: () => {
+        mockedProductQuery.estimatedDocumentCount.mockRejectedValueOnce(new Error('Error in product count'));
+      },
+      expectedStatus: 400,
+      expectedResponse: {
+        message: 'Error in product count',
+        error: new Error('Error in product count'),
+        success: false,
+      },
+    },
+  ];
 
-    const error = new Error('Error in product count');
+  testCases.forEach(({ description, modifyMock, expectedStatus, expectedResponse }) => {
+    it(description, async () => {
+      let consoleErrorMock;
+      let consoleLogMock;
 
-    const mockedProductQuery = {
-      find: jest.fn().mockReturnThis(),
-      estimatedDocumentCount: jest.fn().mockRejectedValue(error),
-    };
+      // Suppress errors only for the error test case
+      if (description === 'should throw an error when an error is thrown') {
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+      }
 
-    productModel.find.mockReturnValue(mockedProductQuery);
+      modifyMock(); // Apply mock modifications
 
-    await productCountController({}, response);
+      await productCountController({}, response);
 
-    expect(response.status).toHaveBeenCalledWith(400);
-    expect(response.send).toHaveBeenCalledWith({
-      message: 'Error in product count',
-      error: error,
-      success: false
+      expect(response.status).toHaveBeenCalledWith(expectedStatus);
+      expect(response.send).toHaveBeenCalledWith(expectedResponse);
+
+      // Restore console.error and console.log after the test
+      if (consoleErrorMock) {
+        consoleErrorMock.mockRestore();
+      }
+      if (consoleLogMock) {
+        consoleLogMock.mockRestore();
+      }
     });
-
-    consoleLogMock.mockRestore();
   });
 });
 
@@ -809,57 +900,76 @@ describe('productListController', () => {
       limit: jest.fn().mockReturnThis(),
       sort: jest.fn().mockResolvedValue([mockedProductData]),
     };
-  });
-
-  it('should list all products on a page with page specified', async () => {
-    productModel.find.mockReturnValue(mockedProductQuery);
-
-    await productListController({ params: { page: 1 } }, response);
-
-    expect(response.status).toHaveBeenCalledWith(200);
-    expect(response.send).toHaveBeenCalledWith({
-      success: true,
-      products: [mockedProductData],
-    });
-  });
-
-  it('should list all products on a page with no page specified', async () => {
-    productModel.find.mockReturnValue(mockedProductQuery);
-
-    await productListController({ params: {} }, response);
-
-    expect(response.status).toHaveBeenCalledWith(200);
-    expect(response.send).toHaveBeenCalledWith({
-      success: true,
-      products: [mockedProductData],
-    });
-  });
-
-  it('should throw an error when an error is thrown', async () => {
-    const consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
-
-    const error = new Error('Error in per page controller');
-
-    mockedProductQuery.sort = jest.fn().mockRejectedValue(error);
 
     productModel.find.mockReturnValue(mockedProductQuery);
+  });
 
-    await productListController({ params: { page: 1 } }, response);
+  const testCases = [
+    {
+      description: 'should list all products on a page with page specified',
+      modifyRequest: (req) => req,
+      requestParams: { params: { page: 1 } },
+      expectedStatus: 200,
+      expectedResponse: {
+        success: true,
+        products: [mockedProductData],
+      },
+    },
+    {
+      description: 'should list all products on a page with no page specified',
+      modifyRequest: (req) => req,
+      requestParams: { params: {} },
+      expectedStatus: 200,
+      expectedResponse: {
+        success: true,
+        products: [mockedProductData],
+      },
+    },
+    {
+      description: 'should throw an error when an error is thrown',
+      modifyRequest: (req) => {
+        mockedProductQuery.sort.mockRejectedValueOnce(new Error('Error in per page controller'));
+        return req;
+      },
+      requestParams: { params: { page: 1 } },
+      expectedStatus: 400,
+      expectedResponse: {
+        success: false,
+        message: 'Error in per page controller',
+        error: new Error('Error in per page controller'),
+      },
+    },
+  ];
 
-    expect(response.status).toHaveBeenCalledWith(400);
-    expect(response.send).toHaveBeenCalledWith({
-      success: false,
-      message: 'Error in per page controller',
-      error: error,
+  testCases.forEach(({ description, modifyRequest, requestParams, expectedStatus, expectedResponse }) => {
+    it(description, async () => {
+      let consoleErrorMock;
+      let consoleLogMock;
+
+      // Suppress errors only for the error test case
+      if (description === 'should throw an error when an error is thrown') {
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+      }
+
+      await productListController(modifyRequest(requestParams), response);
+
+      expect(response.status).toHaveBeenCalledWith(expectedStatus);
+      expect(response.send).toHaveBeenCalledWith(expectedResponse);
+
+      // Restore console.error and console.log after the test
+      if (consoleErrorMock) {
+        consoleErrorMock.mockRestore();
+      }
+      if (consoleLogMock) {
+        consoleLogMock.mockRestore();
+      }
     });
-
-    consoleLogMock.mockRestore();
   });
 });
 
 describe('searchProductController', () => {
   const mockedProductQueryData = [mockedProductData];
-
   let mockedProductQuery;
 
   beforeEach(() => {
@@ -873,47 +983,64 @@ describe('searchProductController', () => {
     productModel.find.mockReturnValue(mockedProductQuery);
   });
 
-  it('should retrieve queried product', async () => {
-    const request = {
-      params: {
-        keyword: 'product',
+  const testCases = [
+    {
+      description: 'should retrieve queried product',
+      modifyMock: () => {}, // No modification needed
+      requestParams: { params: { keyword: 'product' } },
+      expectedResponseType: 'json',
+      expectedResponse: mockedProductQueryData,
+    },
+    {
+      description: 'should throw an error when an error is thrown',
+      modifyMock: () => {
+        mockedProductQuery.select.mockRejectedValueOnce(new Error('Error In Search Product API'));
       },
-    };
-
-    await searchProductController(request, response);
-
-    expect(response.json).toHaveBeenCalledWith(mockedProductQueryData);
-  });
-
-  it('should throw an error when an error is thrown', async () => {
-    const request = {
-      params: {
-        keyword: 'product',
+      requestParams: { params: { keyword: 'product' } },
+      expectedStatus: 400,
+      expectedResponse: {
+        success: false,
+        message: 'Error In Search Product API',
+        error: new Error('Error In Search Product API'),
       },
-    };
+    },
+  ];
 
-    const consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
+  testCases.forEach(({ description, modifyMock, requestParams, expectedStatus, expectedResponse, expectedResponseType }) => {
+    it(description, async () => {
+      let consoleErrorMock;
+      let consoleLogMock;
 
-    const error = new Error('Error In Search Product API');
+      // Suppress errors only for the error test case
+      if (description === 'should throw an error when an error is thrown') {
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+      }
 
-    mockedProductQuery.select = jest.fn().mockRejectedValue(error);
+      modifyMock(); // Apply mock modifications
 
-    await searchProductController(request, response);
+      await searchProductController(requestParams, response);
 
-    expect(response.status).toHaveBeenCalledWith(400);
-    expect(response.send).toHaveBeenCalledWith({
-      success: false,
-      message: 'Error In Search Product API',
-      error: error,
+      if (expectedResponseType === 'json') {
+        expect(response.json).toHaveBeenCalledWith(expectedResponse);
+      } else {
+        expect(response.status).toHaveBeenCalledWith(expectedStatus);
+        expect(response.send).toHaveBeenCalledWith(expectedResponse);
+      }
+
+      // Restore console.error and console.log after the test
+      if (consoleErrorMock) {
+        consoleErrorMock.mockRestore();
+      }
+      if (consoleLogMock) {
+        consoleLogMock.mockRestore();
+      }
     });
-
-    consoleLogMock.mockRestore();
   });
 });
 
 describe('relatedProductController', () => {
   const mockedProductQueryData = [mockedProductData];
-
   let mockedProductQuery;
 
   beforeEach(() => {
@@ -929,98 +1056,135 @@ describe('relatedProductController', () => {
     productModel.find.mockReturnValue(mockedProductQuery);
   });
 
-  it('should retrieve all related products', async () => {
-    const request = {
-      params: {
-        pid: '123',
-        cid: '123',
+  const testCases = [
+    {
+      description: 'should retrieve all related products',
+      modifyMock: () => {}, // No modification needed
+      requestParams: { params: { pid: '123', cid: '123' } },
+      expectedStatus: 200,
+      expectedResponse: {
+        success: true,
+        products: mockedProductQueryData,
       },
-    };
-
-    await relatedProductController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(200);
-    expect(response.send).toHaveBeenCalledWith({
-      success: true,
-      products: mockedProductQueryData,
-    });
-  });
-
-  it('should throw an error when an error is thrown', async () => {
-    const consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
-
-    const error = new Error('Error while geting related product');
-    const request = {
-      params: {
-        pid: '123',
-        cid: '123',
+    },
+    {
+      description: 'should throw an error when an error is thrown',
+      modifyMock: () => {
+        mockedProductQuery.populate.mockRejectedValueOnce(new Error('Error while getting related product'));
       },
-    };
+      requestParams: { params: { pid: '123', cid: '123' } },
+      expectedStatus: 400,
+      expectedResponse: {
+        success: false,
+        message: 'Error while getting related product',
+        error: new Error('Error while getting related product'),
+      },
+    },
+  ];
 
-    mockedProductQuery.populate = jest.fn().mockRejectedValue(error);
+  testCases.forEach(({ description, modifyMock, requestParams, expectedStatus, expectedResponse }) => {
+    it(description, async () => {
+      let consoleErrorMock;
+      let consoleLogMock;
 
-    await relatedProductController(request, response);
+      // Suppress errors only for the error test case
+      if (description === 'should throw an error when an error is thrown') {
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+      }
 
-    expect(response.status).toHaveBeenCalledWith(400);
-    expect(response.send).toHaveBeenCalledWith({
-      success: false,
-      message: 'Error while geting related product',
-      error: error,
+      modifyMock(); // Apply mock modifications
+
+      await relatedProductController(requestParams, response);
+
+      expect(response.status).toHaveBeenCalledWith(expectedStatus);
+      expect(response.send).toHaveBeenCalledWith(expectedResponse);
+
+      // Restore console.error and console.log after the test
+      if (consoleErrorMock) {
+        consoleErrorMock.mockRestore();
+      }
+      if (consoleLogMock) {
+        consoleLogMock.mockRestore();
+      }
     });
-
-    consoleLogMock.mockRestore();
   });
 });
 
 describe('productCategoryController', () => {
   let request;
+  let productModelQuery;
+  const categoryModelQueryData = { name: 'category', slug: 'products' };
+  const mockedProductQueryData = [mockedProductData];
 
   beforeEach(() => {
-    request = {
-      params: {
-        slug: 'product',
-      },
-    };
-
     jest.clearAllMocks();
-  });
 
-  it('should return category of the requested item', async () => {
-    const productModelQuery = {
-      find: jest.fn().mockReturnThis(),
-      populate: jest.fn().mockResolvedValue([mockedProductData]),
+    request = {
+      params: { slug: 'product' },
     };
-    const categoryModelQueryData = { name: 'category', slug: 'products' };
 
-    categoryModel.findOne.mockResolvedValue(categoryModelQueryData);
+    productModelQuery = {
+      find: jest.fn().mockReturnThis(),
+      populate: jest.fn().mockResolvedValue(mockedProductQueryData),
+    };
+
     productModel.find.mockReturnValue(productModelQuery);
-
-    await productCategoryController(request, response);
-
-    expect(response.status).toHaveBeenCalledWith(200);
-    expect(response.send).toHaveBeenCalledWith({
-      success: true,
-      category: categoryModelQueryData,
-      products: [mockedProductData],
-    });
   });
 
-  it('should throw an error when an error is thrown', async () => {
-    const consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => { });
+  const testCases = [
+    {
+      description: 'should return category of the requested item',
+      modifyMock: () => {
+        categoryModel.findOne.mockResolvedValue(categoryModelQueryData);
+      },
+      expectedStatus: 200,
+      expectedResponse: {
+        success: true,
+        category: categoryModelQueryData,
+        products: mockedProductQueryData,
+      },
+    },
+    {
+      description: 'should throw an error when an error is thrown',
+      modifyMock: () => {
+        categoryModel.findOne.mockRejectedValueOnce(new Error('Error While Getting products'));
+      },
+      expectedStatus: 400,
+      expectedResponse: {
+        success: false,
+        message: 'Error While Getting products',
+        error: new Error('Error While Getting products'),
+      },
+    },
+  ];
 
-    const error = new Error('Error While Getting products');
+  testCases.forEach(({ description, modifyMock, expectedStatus, expectedResponse }) => {
+    it(description, async () => {
+      let consoleErrorMock;
+      let consoleLogMock;
 
-    categoryModel.findOne.mockRejectedValue(error);
-    await productCategoryController(request, response);
+      // Suppress errors only for the error test case
+      if (description === 'should throw an error when an error is thrown') {
+        consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+        consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+      }
 
-    expect(response.status).toHaveBeenCalledWith(400);
-    expect(response.send).toHaveBeenCalledWith({
-      success: false,
-      error: error,
-      message: 'Error While Getting products',
+      modifyMock(); // Apply mock modifications
+
+      await productCategoryController(request, response);
+
+      expect(response.status).toHaveBeenCalledWith(expectedStatus);
+      expect(response.send).toHaveBeenCalledWith(expectedResponse);
+
+      // Restore console.error and console.log after the test
+      if (consoleErrorMock) {
+        consoleErrorMock.mockRestore();
+      }
+      if (consoleLogMock) {
+        consoleLogMock.mockRestore();
+      }
     });
-
-    consoleLogMock.mockRestore();
   });
 });
 
