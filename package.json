@@ -12,6 +12,7 @@
     "sonarqube": "sonar-scanner",
     "test:backend": "jest --config=jest.backend.config.js",
     "test:frontend": "jest --config=jest.frontend.config.js",
+    "test:bhanuka": "jest client/src/components/UserMenu.test.js client/src/components/Routes/Private.test.js controllers/productController.test.js models/productModel.test.js models/userModel.test.js client/src/pages/user/Dashboard.test.js --coverage --collectCoverageFrom client/src/components/UserMenu.js --collectCoverageFrom client/src/components/Routes/Private.js --collectCoverageFrom controllers/productController.js --collectCoverageFrom models/productModel.js --collectCoverageFrom models/userModel.js --collectCoverageFrom client/src/pages/user/Dashboard.js",
     "test": "concurrently \"npm run test:backend\" \"npm run test:frontend\""
   },
   "keywords": [],

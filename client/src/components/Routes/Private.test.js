@@ -1,6 +1,7 @@
 /**
  * @jest-environment jsdom
  */
+
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -17,6 +18,7 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: jest.fn(),
   useLocation: jest.fn(),
+  Outlet: jest.fn(() => <div data-testid="outlet">Outlet Rendered</div>),
 }));
 
 describe('PrivateRoute Component', () => {
@@ -37,6 +39,7 @@ describe('PrivateRoute Component', () => {
     render(<PrivateRoute />);
 
     expect(await screen.findByTestId('spinner')).toBeInTheDocument();
+    expect(screen.queryByTestId('outlet')).not.toBeInTheDocument();
     expect(axios.get).not.toHaveBeenCalled();
     expect(consoleSpy).not.toHaveBeenCalled();
   });
@@ -47,9 +50,12 @@ describe('PrivateRoute Component', () => {
 
     render(<PrivateRoute />);
 
-    expect(await screen.findByTestId('spinner')).toBeInTheDocument();
-    expect(axios.get).toHaveBeenCalledWith('/api/v1/auth/user-auth');
+    await waitFor(() => {
+      expect(screen.getByTestId('spinner')).toBeInTheDocument();
+    });
 
+    expect(screen.queryByTestId('outlet')).not.toBeInTheDocument();
+    expect(axios.get).toHaveBeenCalledWith('/api/v1/auth/user-auth');
     expect(consoleSpy).not.toHaveBeenCalled();
   });
 
@@ -59,9 +65,12 @@ describe('PrivateRoute Component', () => {
 
     render(<PrivateRoute />);
 
-    expect(await screen.findByTestId('spinner')).toBeInTheDocument();
-    expect(axios.get).toHaveBeenCalledWith('/api/v1/auth/user-auth');
+    await waitFor(() => {
+      expect(screen.getByTestId('outlet')).toBeInTheDocument();
+    });
 
+    expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
+    expect(axios.get).toHaveBeenCalledWith('/api/v1/auth/user-auth');
     expect(consoleSpy).not.toHaveBeenCalled();
   });
 
@@ -76,6 +85,8 @@ describe('PrivateRoute Component', () => {
       expect(axios.get).toHaveBeenCalledWith('/api/v1/auth/user-auth');
     });
 
+    expect(screen.getByTestId('spinner')).toBeInTheDocument();
+    expect(screen.queryByTestId('outlet')).not.toBeInTheDocument();
     expect(consoleSpy).toHaveBeenCalledWith(error);
   });
 });

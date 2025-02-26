@@ -4,3 +4,11 @@ node_modules
 /blob-report/
 /playwright/.cache/
 /.env
+sonar-project.properties
+
+# Ignore coverage reports
+coverage/
+coverage.json
+coverage.lcov
+lcov-report/
+.scannerwork/report-task.txt

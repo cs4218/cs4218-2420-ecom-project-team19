@@ -438,7 +438,24 @@ describe('productPhotoController', () => {
         error: new Error('Error while getting photo'),
       },
     },
-  ];
+    {
+      description: 'should throw an error when photo data is missing',
+      modifyMock: () => {
+        mockedProductQuery.select.mockResolvedValue({
+          photo: {
+            data: null,
+            contentType: 'image/jpeg',
+          },
+        });
+      },
+      requestParams: { params: { pid: '123' } },
+      expectedStatus: 500,
+      expectedResponse: {
+        success: false,
+        message: 'Photo not found',
+      },
+    },
+  ];  
 
   testCases.forEach(({ description, modifyMock, requestParams, expectedStatus, expectedHeaders, expectedResponse }) => {
     it(description, async () => {
