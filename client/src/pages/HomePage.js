@@ -101,7 +101,15 @@ const HomePage = () => {
         checked,
         radio,
       });
-      setProducts(data?.products);
+      console.log("🔍 Filtered API Response:", data); // Debugging API response
+      console.log("✅ Expected Products Array:", data.products); // Ensure it's an array
+      // setProducts(data?.products);
+      if (Array.isArray(data.products)) {
+        setProducts(data.products);
+      } else {
+          console.error("❌ Expected an array, got:", typeof data.products, data.products);
+          setProducts([]); // Prevent crashing
+      }
     } catch (error) {
       console.log(error);
     }
@@ -152,8 +160,8 @@ const HomePage = () => {
         <div className="col-md-9 ">
           <h1 className="text-center">All Products</h1>
           <div className="d-flex flex-wrap">
-            {products?.map((p) => (
-              <div className="card m-2" key={p._id}>
+            {products?.map((p, index) => (
+              <div className="card m-2" key={p._id || index} data-testid={`product-card-${p._id}`}>
                 <img
                   src={`/api/v1/product/product-photo/${p._id}`}
                   className="card-img-top"
@@ -161,15 +169,15 @@ const HomePage = () => {
                 />
                 <div className="card-body">
                   <div className="card-name-price">
-                    <h5 className="card-title">{p.name}</h5>
-                    <h5 className="card-title card-price">
+                    <h5 className="card-title" data-testid={`product-name-${p._id}`}>{p.name}</h5>
+                    <h5 className="card-title card-price" data-testid={`product-price-${p._id}`}>
                       {p.price.toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
                       })}
                     </h5>
                   </div>
-                  <p className="card-text ">
+                  <p className="card-text " data-testid={`product-desc-${p._id}`}>
                     {p.description.substring(0, 60)}...
                   </p>
                   <div className="card-name-price">
