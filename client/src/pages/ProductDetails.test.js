@@ -2,7 +2,6 @@
 import React from "react";
 import { render, screen, waitFor, cleanup, fireEvent } from "@testing-library/react";
 import { useAuth } from "../context/auth";
-import { useCart } from "../context/cart";
 import useCategory from "../hooks/useCategory";
 import ProductDetails from "./ProductDetails";
 import axios from "axios";

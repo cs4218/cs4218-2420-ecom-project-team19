@@ -1,8 +1,5 @@
-import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
-import { useSearch, SearchProvider } from "./search";
+import { useSearch } from "./search";
 import { useContext } from "react";
-import { useActionState } from "react";
 
 jest.mock("react", () => ({
     ...jest.requireActual("react"),
