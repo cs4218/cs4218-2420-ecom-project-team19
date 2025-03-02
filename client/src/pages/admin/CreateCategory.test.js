@@ -233,5 +233,96 @@ describe('CreateCategory Component', () => {
                 expect(toast.error).toHaveBeenCalledWith(INPUT_FORM_ERROR_MESSAGE);
             });
         });
+
+        it('displays error message when category creation fails due to backend rejection', async () => {
+            axios.post.mockResolvedValueOnce({
+                data: { success: false, message: 'Category creation failed' },
+            });
+        
+            fireEvent.change(screen.getByPlaceholderText('Enter new category'), { target: { value: 'Invalid Category' } });
+            fireEvent.click(screen.getByText('Submit'));
+        
+            await waitFor(() => {
+                expect(axios.post).toHaveBeenCalledWith('/api/v1/category/create-category', { name: 'Invalid Category' });
+                expect(toast.error).toHaveBeenCalledWith('Category creation failed');
+            });
+        });
+
+        it('logs error and displays toast when category fetch fails', async () => {
+            const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+            axios.get.mockRejectedValueOnce(new Error('Fetch Error'));
+        
+            await act(async () => {
+                render(
+                    <MemoryRouter>
+                        <Routes>
+                            <Route path='/' element={<CreateCategory />} />
+                        </Routes>
+                    </MemoryRouter>
+                );
+            });
+        
+            await waitFor(() => {
+                expect(consoleSpy).toHaveBeenCalledWith(new Error('Fetch Error'));
+                expect(toast.error).toHaveBeenCalledWith('Something went wrong in getting category');
+            });
+        
+            consoleSpy.mockRestore();
+        });
+
+        it('displays error message when category update fails', async () => {
+            axios.put.mockResolvedValueOnce({
+                data: { success: false, message: 'Category update failed' },
+            });
+        
+            await act(async () => {
+                fireEvent.click(screen.getAllByText('Edit')[0]);
+            });
+        
+            fireEvent.change(screen.getAllByTestId('category-input')[1], { target: { value: 'New Name' } });
+            fireEvent.click(screen.getAllByTestId('submit-button')[1]);
+        
+            await waitFor(() => {
+                expect(axios.put).toHaveBeenCalledWith('/api/v1/category/update-category/cat1', { name: 'New Name' });
+                expect(toast.error).toHaveBeenCalledWith('Category update failed');
+            });
+        });
+
+        it('displays error message when category deletion fails', async () => {
+            axios.delete.mockResolvedValueOnce({
+                data: { success: false, message: 'Category deletion failed' },
+            });
+        
+            await act(async () => {
+                fireEvent.click(screen.getAllByText('Delete')[0]);
+            });
+        
+            await waitFor(() => {
+                expect(toast.error).toHaveBeenCalledWith('Category deletion failed');
+            });
+        });
+
+        it('closes modal when cancel button is clicked', async () => {
+            await act(async () => {
+                fireEvent.click(screen.getAllByText('Edit')[0]);
+            });
+        
+            const modal = screen.getByTestId('edit-modal');
+            expect(modal).toBeInTheDocument();
+        
+            fireEvent.click(within(modal).getByText('Close'));
+        
+            await waitFor(() => {
+                expect(screen.queryByTestId('edit-modal')).not.toBeInTheDocument();
+            });
+        });
+
+        it('opens modal when edit button is clicked', async () => {
+            await act(async () => {
+                fireEvent.click(screen.getAllByText('Edit')[0]);
+            });
+        
+            expect(screen.getByTestId('edit-modal')).toBeInTheDocument();
+        });
     });
 });

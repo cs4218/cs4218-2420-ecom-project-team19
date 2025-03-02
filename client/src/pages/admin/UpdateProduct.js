@@ -59,7 +59,7 @@ const UpdateProduct = () => {
     getAllCategory();
   }, []);
 
-  //create product function
+  //update product function
   const handleUpdate = async (e) => {
     e.preventDefault();
 
