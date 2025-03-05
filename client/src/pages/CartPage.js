@@ -18,20 +18,19 @@ const CartPage = () => {
   const navigate = useNavigate();
 
   //total price
-  const totalPrice = () => {
+  const totalPrice = (cart) => {
+    if (!cart || cart.length === 0) return "$0.00";
     try {
-      let total = 0;
-      cart?.map((item) => {
-        total = total + item.price;
-      });
-      return total.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
+        let total = cart.reduce((acc, item) => acc + (item.price || 0), 0);
+        return total.toLocaleString("en-US", {
+            style: "currency",
+            currency: "USD",
+        });
     } catch (error) {
-      console.log(error);
+        console.log(error);
+        return "$0.00"; // Fail-safe return
     }
-  };
+};
   //detele item
   const removeCartItem = (pid) => {
     try {
