@@ -111,7 +111,7 @@ const CartPage = () => {
                   </div>
                   <div className="col-md-4">
                     <p>{p.name}</p>
-                    <p>{p.description.substring(0, 30)}</p>
+                    <p>{p.description ? p.description.substring(0, 30) : "No description available"}</p>
                     <p>Price : {p.price}</p>
                   </div>
                   <div className="col-md-4 cart-remove-btn">
@@ -129,7 +129,7 @@ const CartPage = () => {
               <h2>Cart Summary</h2>
               <p>Total | Checkout | Payment</p>
               <hr />
-              <h4>Total : {totalPrice()} </h4>
+              <h4>Total : {cart.length > 0 ? totalPrice(cart) : "$0.00"}</h4>
               {auth?.user?.address ? (
                 <>
                   <div className="mb-3">
@@ -178,15 +178,17 @@ const CartPage = () => {
                           flow: "vault",
                         },
                       }}
-                      onInstance={(instance) => setInstance(instance)}
+                      onInstance={(inst) => {
+                        console.log("DropIn instance set:", inst);
+                        setInstance(inst);
+                    }}
                     />
-
                     <button
-                      className="btn btn-primary"
-                      onClick={handlePayment}
-                      disabled={loading || !instance || !auth?.user?.address}
+                        className="btn btn-primary"
+                        onClick={handlePayment}
+                        disabled={loading || !instance || !auth?.user?.address}
                     >
-                      {loading ? "Processing ...." : "Make Payment"}
+                        {loading ? "Processing ...." : "Make Payment"}
                     </button>
                   </>
                 )}

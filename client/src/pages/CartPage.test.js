@@ -171,4 +171,67 @@ describe("CartPage Tests", () => {
         expect(localStorage.getItem("cart")).toBeNull();
         expect(mockNavigate).toHaveBeenCalledWith("/dashboard/user/orders");
     });
+
+    test("Calculates total price correctly", () => {
+        const { totalPrice } = require("../pages/CartPage");
+    
+        expect(totalPrice([{ price: 10 }, { price: 20 }])).toBe("$30.00");
+        expect(totalPrice([{ price: 0 }])).toBe("$0.00");
+        expect(totalPrice([])).toBe("$0.00");
+        expect(totalPrice(undefined)).toBe("$0.00");
+    });
+
+    test("Removes item from cart correctly", () => {
+        const { removeCartItem } = require("../pages/CartPage");
+        let cart = [
+            { _id: "1", name: "Laptop", price: 999.99 },
+            { _id: "2", name: "Phone", price: 699.99 },
+        ];
+        const setCartMock = jest.fn();
+    
+        removeCartItem("1", cart, setCartMock);
+    
+        expect(setCartMock).toHaveBeenCalledWith([{ _id: "2", name: "Phone", price: 699.99 }]);
+    });
+
+    test("getToken() sets clientToken on success", async () => {
+        useCart.mockReturnValue([[], jest.fn()]);
+        useAuth.mockReturnValue([{ user: { name: "Test User" }, token: "12345" }]);
+    
+        axios.get.mockResolvedValueOnce({ data: { clientToken: "mock-token" } });
+    
+        render(<CartPage />);
+    
+        await waitFor(() => expect(screen.getByTestId("braintree-dropin")).toBeInTheDocument());
+    });
+
+    test("Make Payment button disabled when address is missing", () => {
+        useCart.mockReturnValue([[{ _id: "1", price: 50 }], jest.fn()]);
+        useAuth.mockReturnValue([{ user: { name: "Test User" }, token: "12345", address: "" }]);
+    
+        render(<CartPage />);
+    
+        expect(screen.getByText("Make Payment")).toBeDisabled();
+    });
+    
+    test("Make Payment button enabled when cart, token, and address are available", async () => {
+        useCart.mockReturnValue([
+            [{ _id: "1", price: 50, description: "Test Product" }],
+            jest.fn()
+        ]);
+        useAuth.mockReturnValue([{ user: { name: "Test User", address: "123 Street" }, token: "12345" }]);
+    
+        axios.get.mockResolvedValueOnce({ data: { clientToken: "mock-client-token" } });
+    
+        render(<CartPage />);
+    
+        // Mock the instance required for DropIn
+        await waitFor(() => {
+            const dropIn = screen.getByTestId("braintree-dropin");
+            dropIn.onInstance?.({ requestPaymentMethod: jest.fn() }); // Manually set instance
+        });
+    
+        // Now, check that the button appears and is enabled
+        await waitFor(() => expect(screen.getByText("Make Payment")).toBeEnabled());
+    });
 });
