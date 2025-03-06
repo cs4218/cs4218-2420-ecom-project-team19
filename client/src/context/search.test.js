@@ -1,5 +1,8 @@
-import { useSearch } from "./search";
+import React from "react";
+import { useSearch, SearchProvider  } from "./search";
 import { useContext } from "react";
+import { render } from "@testing-library/react";
+import "@testing-library/jest-dom";
 
 jest.mock("react", () => ({
     ...jest.requireActual("react"),
@@ -81,5 +84,25 @@ describe("SearchContext", () => {
         const [state, setAuth] = useSearch();
         setAuth({ ...state, results: largeResults });
         expect(mockSetAuth).toHaveBeenCalledWith({ ...state, results: largeResults });
+    });
+
+    test("SP-01: SearchProvider initializes with default state", () => {
+        let contextValue;
+    
+        // Component to extract context values
+        const TestComponent = () => {
+            contextValue = useSearch();
+            return null; // No UI needed
+        };
+    
+        render(
+            <SearchProvider>
+                <TestComponent />
+            </SearchProvider>
+        );
+    
+        const [auth] = contextValue;
+        
+        expect(auth).toEqual({ keyword: "", results: [] }); // ✅ Ensures initial state is covered
     });
 });
