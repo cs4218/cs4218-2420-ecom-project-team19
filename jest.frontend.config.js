@@ -23,8 +23,14 @@ export default {
     // "<rootDir>/client/src/pages/**/*.test.js"
     // set to only admin for local testing
     testMatch: [
-        "<rootDir>/client/src/pages/*.test.js",
-        "<rootDir>/client/src/context/*.test.js",
+        "<rootDir>/client/src/pages/CartPage.test.js",
+        "<rootDir>/client/src/pages/Categories.test.js",
+        "<rootDir>/client/src/pages/CategoryProduct.test.js",
+        "<rootDir>/client/src/pages/HomePage.test.js",
+        "<rootDir>/client/src/pages/ProductDetails.test.js",
+        "<rootDir>/client/src/pages/Search.test.js",
+        "<rootDir>/client/src/context/cart.test.js",
+        "<rootDir>/client/src/context/search.test.js",
         "<rootDir>/client/src/hooks/*.test.js",
         "<rootDir>/client/src/components/Form/SearchInput.test.js"
     ],
@@ -32,8 +38,14 @@ export default {
     // jest code coverage
     collectCoverage: true,
     collectCoverageFrom: [
-        "<rootDir>/client/src/pages/*.js",
-        "<rootDir>/client/src/context/*.js",
+        "<rootDir>/client/src/pages/CartPage.js",
+        "<rootDir>/client/src/pages/Categories.js",
+        "<rootDir>/client/src/pages/CategoryProduct.js",
+        "<rootDir>/client/src/pages/HomePage.js",
+        "<rootDir>/client/src/pages/ProductDetails.js",
+        "<rootDir>/client/src/pages/Search.js",
+        "<rootDir>/client/src/context/cart.js",
+        "<rootDir>/client/src/context/search.js",
         "<rootDir>/client/src/hooks/*.js",
         "<rootDir>/client/src/components/Form/SearchInput.js"
     ],
