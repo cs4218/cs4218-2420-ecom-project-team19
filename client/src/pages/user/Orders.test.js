@@ -54,8 +54,6 @@ describe("Given Orders component", () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        axios.get.mockRestore();
-        axios.get.mockResolvedValue({ data: [] });
         useAuth.mockReturnValue([mockedAuth, jest.fn()]);
         moment.mockReturnValue({ fromNow: jest.fn().mockReturnValue("just") });
     });
@@ -71,27 +69,25 @@ describe("Given Orders component", () => {
 
     // test that getOrders is called when auth token is present
     test("When auth token is present", async () => {
-        render(<Orders/>);
+        useAuth.mockReturnValue([mockedAuth, jest.fn()]);
 
-        await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
+        render(<Orders/>);
+        await waitFor(() => expect(axios.get).toHaveBeenCalledWith("/api/v1/auth/orders"));
     });
 
-    /*test("When auth token is absent", async () => {
+    test("When auth token is absent", async () => {
         useAuth.mockReturnValue([undefined, jest.fn()]);
+        
         render(<Orders/>);
-
-        const mockedGetOrders = jest.spyOn(Orders, "getOrder").mockImplementation(() => {});
-
-    });*/
+        await waitFor(() => expect(axios.get).not.toHaveBeenCalled());
+    });
 });
 
-describe("Given Orders component and orders are fetched", () => {
+describe("Given user is authenticated and orders are fetched", () => {
     const mockedAuth = {token: "mock token"};
 
     beforeEach(() => {
         jest.clearAllMocks();
-        axios.get.mockRestore();
-        axios.get.mockResolvedValue({ data: [] });
         useAuth.mockReturnValue([mockedAuth, jest.fn()]);
         moment.mockReturnValue({ fromNow: jest.fn().mockReturnValue("just") });
     });
@@ -157,7 +153,7 @@ describe("Given Orders component and orders are fetched", () => {
         axios.get.mockRejectedValueOnce(mockError);
         const mockedConsoleLog = jest.spyOn(console, "log").mockImplementation(() => {});
 
-        render(<Orders />);
+        render(<Orders/>);
 
         await waitFor(() => expect(axios.get).toHaveBeenCalled());
 
