@@ -1,12 +1,13 @@
 /* eslint-disable testing-library/no-wait-for-multiple-assertions */
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, cleanup, act } from "@testing-library/react";
 import SearchInput from "./SearchInput";
 import { useSearch } from "../../context/search";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "@testing-library/jest-dom";
 
+jest.mock("../../context/search");
 jest.mock("../../context/search", () => ({
     useSearch: jest.fn(),
 }));
@@ -26,6 +27,8 @@ describe("SearchInput component", () => {
         useNavigate.mockReturnValue(mockNavigate);
     });
 
+    afterEach(cleanup);
+
     test("Renders input field and submit button", () => {
         render(<SearchInput />);
 
@@ -42,30 +45,30 @@ describe("SearchInput component", () => {
         expect(mockSetValues).toHaveBeenCalledWith({ keyword: "shoes", results: [] });
     });
 
-    test("Submits form and makes API call with correct keyword", async () => {
+    test("handleSubmit() makes API call with correct keyword", async () => {
+        const mockSetValues = jest.fn();
+        
+        useSearch.mockReturnValue([
+            { keyword: "laptop", results: [] },  
+            mockSetValues, 
+        ]);
+    
         axios.get.mockResolvedValueOnce({ data: [{ id: 1, name: "Product 1" }] });
-
+    
         render(<SearchInput />);
-
-        const input = screen.getByPlaceholderText("Search");
-        fireEvent.change(input, { target: { value: "laptop" } });
-
-        await waitFor(() => {
-            expect(mockSetValues).toHaveBeenCalledWith({ keyword: "laptop", results: [] });
-        });
-
-        const button = screen.getByRole("button", { name: "Search" });
-        fireEvent.click(button);
-
+    
+        const form = screen.getByRole("search");
+        fireEvent.submit(form);
+    
         await waitFor(() => {
             expect(axios.get).toHaveBeenCalledWith("/api/v1/product/search/laptop");
-            expect(mockSetValues.mock.calls[0][0]).toEqual({
+            expect(mockSetValues).toHaveBeenCalledWith({
                 keyword: "laptop",
-                results: [],
+                results: [{ id: 1, name: "Product 1" }],
             });
-            expect(mockNavigate).toHaveBeenCalledWith("/search");
         });
     });
+    
 
     test("Does not make an API call with empty keyword", async () => {
         render(<SearchInput />);
@@ -81,40 +84,44 @@ describe("SearchInput component", () => {
 
     test("Trims whitespace and makes API call with correct keyword", async () => {
         axios.get.mockResolvedValueOnce({ data: [{ id: 2, name: "Product 2" }] });
-
+    
+        useSearch.mockReturnValue([
+            { keyword: "  phone  ", results: [] },
+            mockSetValues,
+        ]);
+    
         render(<SearchInput />);
-
-        const input = screen.getByPlaceholderText("Search");
-        fireEvent.change(input, { target: { value: "  phone  " } });
-
-        expect(mockSetValues).toHaveBeenCalledWith({
-            keyword: "  phone  ",
-            results: [],
-        });
-
+    
+        expect(mockSetValues).not.toHaveBeenCalled(); 
+    
         const button = screen.getByRole("button", { name: "Search" });
         fireEvent.click(button);
-
-        await waitFor (() => {
+    
+        await waitFor(() => {
             expect(axios.get).toHaveBeenCalledWith("/api/v1/product/search/phone");
             expect(mockNavigate).toHaveBeenCalledWith("/search");
         });
     });
+    
 
     test("Handles API failure gracefully", async () => {
         axios.get.mockRejectedValueOnce(new Error("Network Error"));
-
+    
+        useSearch.mockReturnValue([
+            { keyword: "tablet", results: [] },
+            mockSetValues,
+        ]);
+    
         render(<SearchInput />);
-
-        const input = screen.getByPlaceholderText("Search");
-        fireEvent.change(input, { target: { value: "tablet" } });
-
+    
+        expect(mockSetValues).not.toHaveBeenCalled();
+    
         const button = screen.getByRole("button", { name: "Search" });
         fireEvent.click(button);
-
+    
         await waitFor(() => {
             expect(axios.get).toHaveBeenCalledWith("/api/v1/product/search/tablet");
             expect(mockNavigate).not.toHaveBeenCalled();
-        })
-    })
+        });
+    });    
 });
