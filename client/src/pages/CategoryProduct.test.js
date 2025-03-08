@@ -33,7 +33,7 @@ describe("CategoryProduct Component", () => {
             jest.clearAllMocks();
             axios.get.mockReset();
         });
-        cleanup(); // Ensures component unmount after mocks reset
+        cleanup();
     });
 
     test("Renders without crashing before data is fetched", () => {
@@ -57,6 +57,8 @@ describe("CategoryProduct Component", () => {
         };
 
         axios.get.mockResolvedValueOnce({ data: mockData });
+
+        render(<CategoryProduct />);
 
         expect(await screen.findByText("Category - Electronics")).toBeInTheDocument();
     });
@@ -180,7 +182,7 @@ describe("CategoryProduct Component", () => {
             products: [
                 { _id: "1", name: "Random Product", description: "Random item", price: 200 },
             ],
-            category: {}, // No name property
+            category: {},
         };
     
         axios.get.mockResolvedValueOnce({ data: mockData });
@@ -209,7 +211,9 @@ describe("CategoryProduct Component", () => {
     
         await waitFor(() => {
             expect(screen.getByText("Partial Product")).toBeInTheDocument();
-            expect(screen.queryByText(/description/i)).not.toBeInTheDocument();
+            expect(screen.queryByText((content, element) => 
+                element.tagName.toLowerCase() === "p" && content === ""
+            )).not.toBeInTheDocument();
             expect(screen.queryByText(/\$/)).not.toBeInTheDocument();
         });
     });
