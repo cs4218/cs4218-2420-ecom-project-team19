@@ -3,7 +3,8 @@ import Profile from "./Profile";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuth } from "../../context/auth";
-import { act, render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import "@testing-library/jest-dom";
 
 jest.mock("axios");
 jest.mock("../../context/auth", () => ({

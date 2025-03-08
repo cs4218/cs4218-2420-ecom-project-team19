@@ -1,15 +1,19 @@
 export default {
     displayName: "frontend",
 
-    // Use JSDOM to simulate a browser environment
     testEnvironment: "jest-environment-jsdom",
 
-    // test theses files only
     testMatch: [
-        "<rootDir>/controllers/categoryController.test.js"
+        "<rootDir>/client/src/components/Footer.test.js",
+        "<rootDir>/client/src/components/Header.test.js",
+        "<rootDir>/client/src/components/Layout.test.js",
+        "<rootDir>/client/src/components/Spinner.test.js",
+        "<rootDir>/client/src/pages/About.test.js",
+        "<rootDir>/client/src/pages/Pagenotfound.test.js",
+        "<rootDir>/client/src/pages/user/Orders.test.js",
+        "<rootDir>/client/src/pages/user/Profile.test.js",
     ],
 
-    // use Babel
     transform: {
       "^.+\\.(js|jsx|ts|tsx)$": "babel-jest",
     },
@@ -23,7 +27,14 @@ export default {
     // Collect coverage only from relevant frontend files
     collectCoverage: true,
     collectCoverageFrom: [
-        "<rootDir>/controllers/categoryController.js"
+        "<rootDir>/client/src/components/Footer.js",
+        "<rootDir>/client/src/components/Header.js",
+        "<rootDir>/client/src/components/Layout.js",
+        "<rootDir>/client/src/components/Spinner.js",
+        "<rootDir>/client/src/pages/About.js",
+        "<rootDir>/client/src/pages/Pagenotfound.js",
+        "<rootDir>/client/src/pages/user/Orders.js",
+        "<rootDir>/client/src/pages/user/Profile.js",
     ],
 
     coverageThreshold: {

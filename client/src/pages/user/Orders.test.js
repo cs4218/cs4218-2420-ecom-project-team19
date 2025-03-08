@@ -4,6 +4,7 @@ import axios from "axios";
 import { useAuth } from "../../context/auth";
 import moment from "moment";
 import { act, render, screen, waitFor } from "@testing-library/react";
+import "@testing-library/jest-dom";
 
 jest.mock("axios");
 jest.mock("../../context/auth");

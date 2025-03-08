@@ -6,6 +6,7 @@ import useCategory from "../hooks/useCategory";
 import toast from "react-hot-toast";
 import { BrowserRouter } from "react-router-dom";
 import { render, screen, fireEvent } from "@testing-library/react";
+import "@testing-library/jest-dom";
 
 // Mock useAuth
 jest.mock("../context/auth", () => ({

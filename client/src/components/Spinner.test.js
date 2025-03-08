@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { render, screen, act, fireEvent } from "@testing-library/react";
+import React from "react";
+import { render, screen, act } from "@testing-library/react";
 import Spinner from "./Spinner";
 import { useNavigate, useLocation } from "react-router-dom";
+import "@testing-library/jest-dom";
 
 jest.mock('react-router-dom', () => ({
     useNavigate: jest.fn(),
