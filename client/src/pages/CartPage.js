@@ -48,11 +48,13 @@ const CartPage = () => {
   const getToken = async () => {
     try {
       const { data } = await axios.get("/api/v1/product/braintree/token");
+      console.log("Setting Client Token:", data?.clientToken); // ✅ Debug clientToken
       setClientToken(data?.clientToken);
     } catch (error) {
       console.log(error);
     }
   };
+
   useEffect(() => {
     getToken();
   }, [auth?.token]);
@@ -61,18 +63,25 @@ const CartPage = () => {
   const handlePayment = async () => {
     try {
       setLoading(true);
+      console.log("🔹 handlePayment() called");
+      if (!instance) {
+        console.log("🚨 instance is undefined! Payment cannot proceed.");
+        return;
+      }
       const { nonce } = await instance.requestPaymentMethod();
+      console.log("✅ Payment nonce received:", nonce);
       const { data } = await axios.post("/api/v1/product/braintree/payment", {
         nonce,
         cart,
       });
       setLoading(false);
+      console.log("✅ Payment request successful:", data);
       localStorage.removeItem("cart");
       setCart([]);
       navigate("/dashboard/user/orders");
       toast.success("Payment Completed Successfully ");
     } catch (error) {
-      console.log(error);
+      console.log("🚨 Error in handlePayment:", error);
       setLoading(false);
     }
   };
@@ -172,16 +181,15 @@ const CartPage = () => {
                 ) : (
                   <>
                     <DropIn
+                      data-testid="braintree-dropin"
                       options={{
                         authorization: clientToken,
-                        paypal: {
-                          flow: "vault",
-                        },
+                        paypal: { flow: "vault" },
                       }}
                       onInstance={(inst) => {
                         console.log("DropIn instance set:", inst);
                         setInstance(inst);
-                    }}
+                      }}
                     />
                     <button
                         className="btn btn-primary"

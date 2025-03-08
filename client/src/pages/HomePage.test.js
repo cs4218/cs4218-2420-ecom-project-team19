@@ -15,11 +15,8 @@ jest.mock("../hooks/useCategory", () => ({
     __esModule: true,
     default: jest.fn(),
 }));
-// jest.mock("../context/cart", () => ({
-//     useCart: jest.fn(),
-// }));
 jest.mock("../context/cart", () => ({
-    useCart: jest.fn(() => [[], jest.fn()]), // Mock an empty cart with a setter function
+    useCart: jest.fn(() => [[], jest.fn()]),
 }));
 jest.mock("axios");
 jest.mock("react-router-dom", () => ({

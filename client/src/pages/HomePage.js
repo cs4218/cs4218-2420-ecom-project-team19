@@ -56,7 +56,7 @@ const HomePage = () => {
       const { data } = await axios.get("/api/v1/product/product-count");
       setTotal(data?.total);
     } catch (error) {
-      console.error("Error fetching total product count:", error);
+      // console.error("Error fetching total product count:", error);
     }
   };
 
