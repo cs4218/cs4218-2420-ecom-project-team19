@@ -1,5 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
+import userEvent from '@testing-library/user-event'
 import { BrowserRouter } from "react-router-dom";
 import "@testing-library/jest-dom";
 import Pagenotfound from "./Pagenotfound";
@@ -47,7 +48,7 @@ describe("Pagenotfound page", () => {
         expect(screen.getByText("Oops ! Page Not Found")).toBeInTheDocument();
     });
 
-    // Test if link is rendered with correct name
+    // Test if Go back link is rendered
     test("Page rendered with link", () => {
         render(
             <BrowserRouter>

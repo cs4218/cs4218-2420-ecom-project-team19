@@ -1,6 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1715086491438" clover="3.2.0">
-  <project timestamp="1715086491438" name="All files">
-    <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0" elements="0" coveredelements="0" complexity="0" loc="0" ncloc="0" packages="0" files="0" classes="0"/>
+<coverage generated="1741447688928" clover="3.2.0">
+  <project timestamp="1741447688929" name="All files">
+    <metrics statements="33" coveredstatements="33" conditionals="2" coveredconditionals="2" methods="8" coveredmethods="8" elements="43" coveredelements="43" complexity="0" loc="33" ncloc="33" packages="1" files="1" classes="1"/>
+    <file name="Profile.js" path="C:\Users\Hmuu Myat Moe\Music\CS4218\proj\cs4218-2420-ecom-project-team19\client\src\pages\user\Profile.js">
+      <metrics statements="33" coveredstatements="33" conditionals="2" coveredconditionals="2" methods="8" coveredmethods="8"/>
+      <line num="7" count="1" type="stmt"/>
+      <line num="9" count="28" type="stmt"/>
+      <line num="11" count="28" type="stmt"/>
+      <line num="12" count="28" type="stmt"/>
+      <line num="13" count="28" type="stmt"/>
+      <line num="14" count="28" type="stmt"/>
+      <line num="15" count="28" type="stmt"/>
+      <line num="18" count="28" type="stmt"/>
+      <line num="19" count="11" type="stmt"/>
+      <line num="20" count="11" type="stmt"/>
+      <line num="21" count="11" type="stmt"/>
+      <line num="22" count="11" type="stmt"/>
+      <line num="23" count="11" type="stmt"/>
+      <line num="27" count="28" type="stmt"/>
+      <line num="28" count="3" type="stmt"/>
+      <line num="29" count="3" type="stmt"/>
+      <line num="30" count="3" type="stmt"/>
+      <line num="37" count="2" type="cond" truecount="2" falsecount="0"/>
+      <line num="38" count="1" type="stmt"/>
+      <line num="40" count="1" type="stmt"/>
+      <line num="41" count="1" type="stmt"/>
+      <line num="42" count="1" type="stmt"/>
+      <line num="43" count="1" type="stmt"/>
+      <line num="44" count="1" type="stmt"/>
+      <line num="45" count="1" type="stmt"/>
+      <line num="48" count="1" type="stmt"/>
+      <line num="49" count="1" type="stmt"/>
+      <line num="52" count="28" type="stmt"/>
+      <line num="67" count="2" type="stmt"/>
+      <line num="78" count="1" type="stmt"/>
+      <line num="89" count="1" type="stmt"/>
+      <line num="99" count="1" type="stmt"/>
+      <line num="109" count="1" type="stmt"/>
+    </file>
   </project>
 </coverage>
