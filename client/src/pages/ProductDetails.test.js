@@ -51,7 +51,7 @@ describe("ProductDeatils Component", () => {
         render(<ProductDetails />);
       
         expect(screen.getByText(/Name :/)).toBeInTheDocument();
-        expect(screen.queryByText(/Name : \w+/)).not.toBeInTheDocument();
+        expect(screen.getByText(/name/i)).toHaveTextContent("Name : N/A");
     });
 
     test("Displays product details when fetched successfully", async () => {
@@ -99,9 +99,9 @@ describe("ProductDeatils Component", () => {
         await waitFor(() => {
             expect(screen.getByText("Product Details")).toBeInTheDocument();
             expect(screen.getByText("Name : Incomplete Product")).toBeInTheDocument();
-            expect(screen.getByText("Description :")).toBeInTheDocument();
-            expect(screen.getByText("Price :")).toBeInTheDocument();
-            expect(screen.getByText("Category :")).toBeInTheDocument();
+            expect(screen.getByText(/description/i)).toHaveTextContent("Description : No description available");
+            expect(screen.getByText(/price/i)).toHaveTextContent("Price :N/A");
+            expect(screen.getByText(/category/i)).toHaveTextContent("Category : N/A");
         });
     });
 
@@ -198,8 +198,8 @@ describe("ProductDeatils Component", () => {
         ];
     
         axios.get
-            .mockResolvedValueOnce({ data: mockProduct }) // For getProduct
-            .mockResolvedValueOnce({ data: { products: relatedProducts } }); // For getSimilarProduct
+            .mockResolvedValueOnce({ data: mockProduct })
+            .mockResolvedValueOnce({ data: { products: relatedProducts } });
     
         render(<ProductDetails />);
     
@@ -223,8 +223,8 @@ describe("ProductDeatils Component", () => {
         };
     
         axios.get
-            .mockResolvedValueOnce({ data: mockProduct }) // getProduct
-            .mockResolvedValueOnce({ data: { products: [] } }); // No related products
+            .mockResolvedValueOnce({ data: mockProduct })
+            .mockResolvedValueOnce({ data: { products: [] } });
     
         render(<ProductDetails />);
     
@@ -238,9 +238,9 @@ describe("ProductDeatils Component", () => {
             product: {
                 _id: "1",
                 name: "Test Product",
-                description: null, // Missing description
-                price: 49.99,
-                category: null, // Missing category
+                description: null,
+                price: null,
+                category: null,
             },
         };
     
@@ -248,11 +248,14 @@ describe("ProductDeatils Component", () => {
     
         render(<ProductDetails />);
     
-        expect(await screen.findByText(/name :/i)).toHaveTextContent("Name : Test Product");
-        expect(screen.queryByText(/description :/i)).not.toBeInTheDocument();
-        expect(screen.queryByText(/category :/i)).not.toBeInTheDocument();
-        expect(await screen.findByText(/\$49\.99/)).toBeInTheDocument(); // Price still shows up
+        expect(await screen.findByText(/name : test product/i)).toBeInTheDocument();
+        expect(await screen.findByText(/description : no description available/i)).toBeInTheDocument();
+        expect(screen.getByText(/price/i)).toHaveTextContent("Price :N/A");
+        expect(await screen.findByText(/category : n\/a/i)).toBeInTheDocument();
     });
+    
+    
+    
     
     test("Prevents multiple API calls when params remain the same", async () => {
         useParams.mockReturnValue({ slug: "test-product" });

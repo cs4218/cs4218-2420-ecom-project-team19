@@ -73,7 +73,7 @@ const HomePage = () => {
       setLoading(false);
       setProducts([...products, ...data?.products]);
     } catch (error) {
-      console.error("Error loading more products:", error);
+      // console.error("Error loading more products:", error);
       setLoading(false);
     }
   };
@@ -106,7 +106,7 @@ const HomePage = () => {
       });
       setProducts(Array.isArray(data.products) ? data.products : []);
     } catch (error) {
-      console.error("Error fetching filtered products:", error);
+      // console.error("Error fetching filtered products:", error);
       setProducts([]); // Prevent UI crash
     }
   };

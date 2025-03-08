@@ -17,15 +17,21 @@ const ProductDetails = () => {
   //getProduct
   const getProduct = async () => {
     try {
-      const { data } = await axios.get(
-        `/api/v1/product/get-product/${params.slug}`
-      );
-      setProduct(data?.product);
-      getSimilarProduct(data?.product._id, data?.product.category._id);
+      const { data } = await axios.get(`/api/v1/product/get-product/${params.slug}`);
+      if (!data?.product) {
+        setProduct(null); // Explicitly handle missing product
+        return;
+      }
+      setProduct(data.product);
+      if (data.product?._id && data.product?.category?._id) {
+        if (data.product?._id && data.product?.category?._id) {
+          getSimilarProduct(data.product._id, data.product.category._id);
+        }
+      }
     } catch (error) {
       console.log(error);
     }
-  };
+  };  
   //get similar product
   const getSimilarProduct = async (pid, cid) => {
     try {
@@ -52,17 +58,16 @@ const ProductDetails = () => {
         <div className="col-md-6 product-details-info">
           <h1 className="text-center">Product Details</h1>
           <hr />
-          <h6>Name : {product.name}</h6>
-          <h6>Description : {product.description}</h6>
+          <h6>Name : {product?.name || "N/A"}</h6>
+          <h6>Description : {product?.description ? product.description : "No description available"}</h6>
           <h6>
             Price : 
-            {product?.price?.toLocaleString("en-US", {
-              style: "currency",
-              currency: "USD",
-            })}
+            {product?.price
+              ? product.price.toLocaleString("en-US", { style: "currency", currency: "USD" })
+              : "N/A"}
           </h6>
-          <h6>Category : {product?.category?.name}</h6>
-          <button class="btn btn-secondary ms-1">ADD TO CART</button>
+          <h6>Category : {product?.category?.name || "N/A"}</h6>
+          <button className="btn btn-secondary ms-1">ADD TO CART</button>
         </div>
       </div>
       <hr />
