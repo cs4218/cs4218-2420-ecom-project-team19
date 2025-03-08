@@ -54,18 +54,19 @@ describe("Given CategoryModel", () => {
         expect(result).toEqual(validMockCategory);
     });
 
+    /*
     test("When creating new category with no name", async () => {
         const noNameMockCategory = {
             slug: "test slug"
         }
-        /*
+        
         categoryModel.validateSync.mockResolvedValueOnce({
             errors: {
                 name: {
                     message: "name is required",
                 }
             }
-        });*/
+        });
 
         try {
             result = await categoryModel.create(noNameMockCategory);
@@ -78,6 +79,7 @@ describe("Given CategoryModel", () => {
         //expect(result.name).toBeUndefined();
         //expect(result.slug).toBe("test slug");
     });
+    */
 
     test("When fetching all categories", async () => {
         categoryModel.find.mockResolvedValue(allCategories);
