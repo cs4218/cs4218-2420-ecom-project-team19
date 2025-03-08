@@ -238,6 +238,117 @@ describe('CreateProduct Component', () => {
         });
     });
 
+    // unable to cover all branches
+    describe('Creation Prevention', () => {
+        it('displays error when price is invalid', async () => {
+            render(
+                <MemoryRouter>
+                    <Routes>
+                        <Route path='/' element={<CreateProduct />} />
+                    </Routes>
+                </MemoryRouter>
+            );
+        
+            fireEvent.change(screen.getByPlaceholderText('write a Price'), { target: { value: '-10' } });
+        
+            fireEvent.click(screen.getByText('CREATE PRODUCT'));
+        
+            await waitFor(() => {
+                expect(toast.error).toHaveBeenCalledWith('something went wrong');
+            });
+        });
+
+        it('displays error when price is missing', async () => {
+            render(
+                <MemoryRouter>
+                    <Routes>
+                        <Route path='/' element={<CreateProduct />} />
+                    </Routes>
+                </MemoryRouter>
+            );
+        
+            fireEvent.change(screen.getByPlaceholderText('write a Price'), { target: { value: '' } });
+        
+            fireEvent.click(screen.getByText('CREATE PRODUCT'));
+        
+            await waitFor(() => {
+                expect(toast.error).toHaveBeenCalledWith('something went wrong');
+            });
+        });
+
+        it('displays error when quantity is invalid', async () => {
+            render(
+                <MemoryRouter>
+                    <Routes>
+                        <Route path='/' element={<CreateProduct />} />
+                    </Routes>
+                </MemoryRouter>
+            );
+        
+            fireEvent.change(screen.getByPlaceholderText('write a quantity'), { target: { value: '-5' } });
+        
+            fireEvent.click(screen.getByText('CREATE PRODUCT'));
+        
+            await waitFor(() => {
+                expect(toast.error).toHaveBeenCalledWith('something went wrong');
+            });
+        });
+
+        it('displays error when quantity is missing', async () => {
+            render(
+                <MemoryRouter>
+                    <Routes>
+                        <Route path='/' element={<CreateProduct />} />
+                    </Routes>
+                </MemoryRouter>
+            );
+        
+            fireEvent.change(screen.getByPlaceholderText('write a quantity'), { target: { value: '' } });
+        
+            fireEvent.click(screen.getByText('CREATE PRODUCT'));
+        
+            await waitFor(() => {
+                expect(toast.error).toHaveBeenCalledWith('something went wrong');
+            });
+        });
+
+        it('displays error when shipping is invalid', async () => {
+            render(
+                <MemoryRouter>
+                    <Routes>
+                        <Route path='/' element={<CreateProduct />} />
+                    </Routes>
+                </MemoryRouter>
+            );
+        
+            fireEvent.change(screen.getByRole('combobox', { name: /select shipping/i }), { target: { value: '2' } });
+        
+            fireEvent.click(screen.getByText('CREATE PRODUCT'));
+        
+            await waitFor(() => {
+                expect(toast.error).toHaveBeenCalledWith('something went wrong');
+            });
+        });
+
+        it('displays error when shipping is missing', async () => {
+            render(
+                <MemoryRouter>
+                    <Routes>
+                        <Route path='/' element={<CreateProduct />} />
+                    </Routes>
+                </MemoryRouter>
+            );
+        
+            fireEvent.change(screen.getByRole('combobox', { name: /select shipping/i }), { target: { value: '' } });
+        
+            fireEvent.click(screen.getByText('CREATE PRODUCT'));
+        
+            await waitFor(() => {
+                expect(toast.error).toHaveBeenCalledWith('something went wrong');
+            });
+        });
+    });
+
     describe('Error Handling', () => {
         it('displays error when submitting an empty form', async () => {
             axios.post.mockRejectedValueOnce({
@@ -317,5 +428,54 @@ describe('CreateProduct Component', () => {
                 expect(toast.error).toHaveBeenCalledWith(BACKEND_ERROR_MESSAGE);
             });
         });
+
+        it('displays error when product creation fails', async () => {
+            axios.post.mockResolvedValueOnce({
+                data: { success: false },
+            });
+        
+            render(
+                <MemoryRouter>
+                    <Routes>
+                        <Route path='/' element={<CreateProduct />} />
+                    </Routes>
+                </MemoryRouter>
+            );
+        
+            fireEvent.change(screen.getByPlaceholderText('write a name'), { target: { value: 'Test Product' } });
+            fireEvent.change(screen.getByPlaceholderText('write a description'), { target: { value: 'Test Description' } });
+            fireEvent.change(screen.getByPlaceholderText('write a Price'), { target: { value: '100' } });
+            fireEvent.change(screen.getByPlaceholderText('write a quantity'), { target: { value: '10' } });
+            fireEvent.change(screen.getByRole('combobox', { name: /select a category/i }), { target: { value: 'cat1' } });
+            fireEvent.change(screen.getByRole('combobox', { name: /select shipping/i }), { target: { value: '1' } });
+        
+            fireEvent.click(screen.getByText('CREATE PRODUCT'));
+        
+            await waitFor(() => {
+                expect(toast.error).toHaveBeenCalledWith('something went wrong');
+            });
+        });
+
+        it('displays error when product creation request fails', async () => {
+            const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+        
+            render(
+                <MemoryRouter>
+                    <Routes>
+                        <Route path='/' element={<CreateProduct />} />
+                    </Routes>
+                </MemoryRouter>
+            );
+        
+            fireEvent.click(screen.getByText('CREATE PRODUCT'));
+        
+            await waitFor(() => {
+                consoleSpy.mock.calls.forEach(call => console.log("Console log output:", call));
+        
+                expect(toast.error).toHaveBeenCalledWith('something went wrong');
+            });
+            consoleSpy.mockRestore();
+        });
+         
     });
 })
