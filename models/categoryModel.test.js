@@ -2,18 +2,8 @@ import categoryModel from "./categoryModel";
 import Category from "./categoryModel";
 import mongoose from "mongoose";
 
-//jest.mock("mongoose");
 jest.mock("./categoryModel");
 
-/*
-jest.mock("mongoose", () => ({
-    ...jest.requireActual('mongoose'),  // Keep other mongoose methods intact
-    model: jest.fn().mockReturnValue({
-        save: jest.fn(),
-        validateSync: jest.fn(),
-    }),
-}));
-*/
 const validMockCategory = {
     _id: "1",
     name: "category1",
@@ -53,33 +43,6 @@ describe("Given CategoryModel", () => {
         const result = await categoryModel.create(validMockCategory);
         expect(result).toEqual(validMockCategory);
     });
-
-    /*
-    test("When creating new category with no name", async () => {
-        const noNameMockCategory = {
-            slug: "test slug"
-        }
-        
-        categoryModel.validateSync.mockResolvedValueOnce({
-            errors: {
-                name: {
-                    message: "name is required",
-                }
-            }
-        });
-
-        try {
-            result = await categoryModel.create(noNameMockCategory);
-            expect(result.name).toBeUndefined();
-        } catch (error) {
-            //expect(error);
-        }
-        //const result = await categoryModel.create(noNameMockCategory);
-        
-        //expect(result.name).toBeUndefined();
-        //expect(result.slug).toBe("test slug");
-    });
-    */
 
     test("When fetching all categories", async () => {
         categoryModel.find.mockResolvedValue(allCategories);
