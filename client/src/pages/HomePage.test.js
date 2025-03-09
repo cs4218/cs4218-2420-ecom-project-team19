@@ -1,6 +1,6 @@
 /* eslint-disable testing-library/no-wait-for-multiple-assertions */
 import React from "react";
-import { render, screen, waitFor, cleanup, fireEvent } from "@testing-library/react";
+import { render, screen, waitFor, cleanup, fireEvent, act } from "@testing-library/react";
 import axios from "axios";
 import { useCart } from "../context/cart";
 import { useNavigate } from "react-router-dom";
@@ -36,45 +36,90 @@ describe("HomePage Initial Render", () => {
 
     afterEach(cleanup);
 
-    test("The banner image is displayed", () => {
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
-
-        const bannerImage = screen.getByAltText("bannerimage");
-        expect(bannerImage).toBeInTheDocument();
+    test("The banner image is displayed", async () => {
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
+    
+        expect(await screen.findByAltText("bannerimage")).toBeInTheDocument();
     });
 
-    test("The 'Filter By Category' section is present", () => {
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
-
-        expect(screen.getByText("Filter By Category")).toBeInTheDocument();
+    test("The 'Filter By Category' section is present", async () => {
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
+    
+        expect(await screen.findByText("Filter By Category")).toBeInTheDocument();
     });
 
-    test("The 'All Products' section is present", () => {
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
-
-        expect(screen.getByText("All Products")).toBeInTheDocument();
+    test("The 'All Products' section is present", async () => {
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
+    
+        expect(await screen.findByText("All Products")).toBeInTheDocument();
     });
 
-    test("Default state should have an empty product list", () => {
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
-
+    test("Default state should have an empty product list", async () => {
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
+    
         expect(screen.queryByRole("button", { name: "Loadmore" })).not.toBeInTheDocument();
+    });
+});
+
+describe("Handling API Failures", () => {
+    test("API failure when fetching products should display an error message", async () => {
+        axios.get.mockRejectedValueOnce(new Error("API Error"));
+
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
+
+        await waitFor(() => {
+            expect(screen.getByText("No Products Found")).toBeInTheDocument();
+        });
+    });
+
+    test("API failure when filtering products should not crash the app", async () => {
+        axios.get.mockResolvedValueOnce({ data: { products: [{ _id: "1", name: "Laptop" }] } });
+        axios.post.mockRejectedValueOnce(new Error("Filter API Error"));
+
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
+
+        // Simulate applying a filter
+        fireEvent.click(screen.getByText("$0 to 19"));
+
+        await waitFor(() => {
+            expect(screen.getByText("All Products")).toBeInTheDocument(); // App should not crash
+        });
     });
 });
 
@@ -84,6 +129,42 @@ describe("Fetching Categories in HomePage", () => {
         useCart.mockReturnValue([[], jest.fn()]);
         useNavigate.mockReturnValue(jest.fn());
         useCategory.mockReturnValue([]);
+    });
+
+    test("Handles API returning an empty category list", async () => {
+        axios.get.mockResolvedValueOnce({
+            data: {
+                success: true,
+                category: [],
+            },
+        });
+
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
+        await waitFor(() => {
+            expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+        });
+    });
+
+    test("Handles API failure gracefully", async () => {
+        axios.get.mockRejectedValueOnce(new Error("API Error"));
+
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
+
+        await waitFor(() => {
+            expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+        });
     });
 
     test("Handles successful API response with multiple categories", async () => {
@@ -97,48 +178,17 @@ describe("Fetching Categories in HomePage", () => {
             },
         });
 
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
 
         await waitFor(() => {
             expect(screen.getByText("Electronics")).toBeInTheDocument();
             expect(screen.getByText("Clothing")).toBeInTheDocument();
-        });
-    });
-
-    test("Handles API returning an empty category list", async () => {
-        axios.get.mockResolvedValueOnce({
-            data: {
-                success: true,
-                category: [],
-            },
-        });
-
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
-
-        await waitFor(() => {
-            expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
-        });
-    });
-
-    test("Handles API failure gracefully", async () => {
-        axios.get.mockRejectedValueOnce(new Error("API Error"));
-
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
-
-        await waitFor(() => {
-            expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
         });
     });
 });
@@ -151,30 +201,6 @@ describe("Fetching Products in HomePage", () => {
         useCategory.mockReturnValue([]);
     });
 
-    test("Handles successful API response with multiple products", async () => {
-        axios.get.mockResolvedValue({
-            data: {
-                products: [
-                    { _id: "1", name: "Laptop", price: 999.99, description: "High-end laptop" },
-                    { _id: "2", name: "Phone", price: 699.99, description: "Latest smartphone" },
-                ],
-            },
-        });
-
-    
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
-    
-        await waitFor(() => {
-            expect(screen.getByText("Laptop")).toBeInTheDocument();
-            expect(screen.getByText("Phone")).toBeInTheDocument();
-        });
-    });
-    
-
     test("Handles API returning an empty product list", async () => {
         axios.get.mockResolvedValueOnce({
             data: {
@@ -182,11 +208,13 @@ describe("Fetching Products in HomePage", () => {
             },
         });
 
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
 
         await waitFor(() => {
             expect(screen.queryByText("No Products Found")).toBeInTheDocument();
@@ -196,15 +224,41 @@ describe("Fetching Products in HomePage", () => {
     test("Handles API failure gracefully", async () => {
         axios.get.mockRejectedValueOnce(new Error("API Error"));
 
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
 
         await waitFor(() => {
             expect(screen.queryByText("Laptop")).not.toBeInTheDocument();
             expect(screen.queryByText("Phone")).not.toBeInTheDocument();
+        });
+    });
+
+    test("Handles successful API response with multiple products", async () => {
+        axios.get.mockResolvedValue({
+            data: {
+                products: [
+                    { _id: "1", name: "Laptop", price: 999.99, description: "High-end laptop" },
+                    { _id: "2", name: "Phone", price: 699.99, description: "Latest smartphone" },
+                ],
+            },
+        });
+    
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
+    
+        await waitFor(() => {
+            expect(screen.getByText("Laptop")).toBeInTheDocument();
+            expect(screen.getByText("Phone")).toBeInTheDocument();
         });
     });
 });
@@ -227,15 +281,19 @@ describe("Filtering by Category in HomePage", () => {
             data: { products: [{ _id: "1", name: "Laptop", category: "Electronics" }] },
         });
 
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
 
         expect(await screen.findByText("Electronics")).toBeInTheDocument();
 
-        fireEvent.click(screen.getByText("Electronics"));
+        await act(async () => {
+            fireEvent.click(screen.getByText("Electronics"));
+        })
 
         expect(await screen.findByText("Laptop")).toBeInTheDocument();
     });
@@ -259,11 +317,14 @@ describe("Filtering by Category in HomePage", () => {
             },
         });
 
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
+
         expect(await screen.findByText("Electronics")).toBeInTheDocument();
         fireEvent.click(screen.getByText("Electronics"));
         expect(await screen.findByText("Clothing")).toBeInTheDocument();
@@ -289,11 +350,13 @@ describe("Filtering by Category in HomePage", () => {
             },
         });
 
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
 
         expect(await screen.findByText("Electronics")).toBeInTheDocument();
 
@@ -319,11 +382,13 @@ describe("Filtering by Category in HomePage", () => {
             },
         });
 
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
 
         expect(await screen.findByText("Electronics")).toBeInTheDocument();
 
@@ -353,11 +418,13 @@ describe("Filtering by Price in HomePage", () => {
             data: { products: [{ _id: "1", name: "Laptop", price: 999.99 }] },
         });
 
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
 
         expect(await screen.findByText("Filter By Price")).toBeInTheDocument();
 
@@ -379,11 +446,13 @@ describe("Filtering by Price in HomePage", () => {
             },
         });
 
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
 
         expect(await screen.findByText("Filter By Price")).toBeInTheDocument();
 
@@ -410,11 +479,13 @@ describe("Adding to Cart in HomePage", () => {
             },
         });
 
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
 
         // Simulate setting the products manually
         fireEvent.click(await screen.findByRole("button", { name: /ADD TO CART/i }));
@@ -437,11 +508,13 @@ describe("Adding to Cart in HomePage", () => {
             },
         });
 
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
 
         fireEvent.click(await screen.findByRole("button", { name: /ADD TO CART/i }));
 
@@ -462,11 +535,13 @@ describe("Adding to Cart in HomePage", () => {
             },
         });
 
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
 
         const addToCartButtons = await screen.findAllByRole("button", { name: /ADD TO CART/i });
         fireEvent.click(addToCartButtons[0]);
@@ -497,11 +572,13 @@ describe("More Details Button Navigation", () => {
             },
         });
     
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
 
         await waitFor(() => screen.findByText("Laptop"));
     
@@ -527,11 +604,13 @@ describe("Reset Filters Functionality", () => {
             return Promise.resolve({ data: { products: [] } });
         });
         
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
+        await act(async () => {
+            render(
+                <BrowserRouter>
+                    <HomePage />
+                </BrowserRouter>
+            );
+        });
     
         fireEvent.click(screen.getByText("$0 to 19"));
         fireEvent.click(screen.getByText("RESET FILTERS"));
@@ -542,36 +621,3 @@ describe("Reset Filters Functionality", () => {
     });
 });
 
-describe("Handling API Failures", () => {
-    test("API failure when fetching products should display an error message", async () => {
-        axios.get.mockRejectedValueOnce(new Error("API Error"));
-
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
-
-        await waitFor(() => {
-            expect(screen.getByText("No Products Found")).toBeInTheDocument();
-        });
-    });
-
-    test("API failure when filtering products should not crash the app", async () => {
-        axios.get.mockResolvedValueOnce({ data: { products: [{ _id: "1", name: "Laptop" }] } });
-        axios.post.mockRejectedValueOnce(new Error("Filter API Error"));
-
-        render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
-        );
-
-        // Simulate applying a filter
-        fireEvent.click(screen.getByText("$0 to 19"));
-
-        await waitFor(() => {
-            expect(screen.getByText("All Products")).toBeInTheDocument(); // App should not crash
-        });
-    });
-});
