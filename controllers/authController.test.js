@@ -120,6 +120,23 @@ describe('Auth Controller', () => {
         },
       });
     });
+
+
+    it('should handle errors gracefully', async () => {
+      const req = { body: { name: 'name', email: 'test@test.com', password: 'password', phone: '1234567890', address: 'address', answer: 'answer' } };
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      userModel.findOne.mockRejectedValue(new Error('Database error'));
+
+      await registerController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: 'Error in registration',
+        error: new Error('Database error'),
+      });
+    });
   });
 
   describe('loginController', () => {
