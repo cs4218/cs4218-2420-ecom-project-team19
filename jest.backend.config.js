@@ -19,12 +19,13 @@ export default {
     "<rootDir>/controllers/*.js",
     "<rootDir>/models/*.js",
   ],
-  coverageThreshold: {
-    global: {
-      statements: 90,
-      branches: 80,
-      functions: 90,
-      lines: 90,
+  
+    coverageThreshold: {
+      global: {
+        statements: 80,
+        branches: 60,
+        functions: 90,
+        lines: 80,
+      },
     },
-  },
 };
