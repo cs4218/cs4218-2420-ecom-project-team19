@@ -12,6 +12,11 @@ jest.mock('./../helpers/authHelper');
 jest.mock('jsonwebtoken');
 
 describe('Auth Controller', () => {
+  beforeEach(() => {
+    jest.spyOn(console, 'log').mockImplementation(() => { });
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+  });
+
   describe('registerController', () => {
     it('should return error if name is missing', async () => {
       const req = { body: { email: 'test@test.com', password: 'password', phone: '1234567890', address: 'address', answer: 'answer' } };
@@ -31,7 +36,90 @@ describe('Auth Controller', () => {
       expect(res.send).toHaveBeenCalledWith({ message: 'Email is Required' });
     });
 
-    // Add more tests for other validations and successful registration
+    it('should return error if password is missing', async () => {
+      const req = { body: { name: 'name', email: 'test@test.com', phone: '1234567890', address: 'address', answer: 'answer' } };
+      const res = { send: jest.fn() };
+
+      await registerController(req, res);
+
+      expect(res.send).toHaveBeenCalledWith({ message: 'Password is Required' });
+    });
+
+    it('should return error if phone is missing', async () => {
+      const req = { body: { name: 'name', email: 'test@test.com', password: 'password', address: 'address', answer: 'answer' } };
+      const res = { send: jest.fn() };
+
+      await registerController(req, res);
+
+      expect(res.send).toHaveBeenCalledWith({ message: 'Phone no is Required' });
+    });
+
+    it('should return error if address is missing', async () => {
+      const req = { body: { name: 'name', email: 'test@test.com', password: 'password', phone: '1234567890', answer: 'answer' } };
+      const res = { send: jest.fn() };
+
+      await registerController(req, res);
+
+      expect(res.send).toHaveBeenCalledWith({ message: 'Address is Required' });
+    });
+
+    it('should return error if answer is missing', async () => {
+      const req = { body: { name: 'name', email: 'test@test.com', password: 'password', phone: '1234567890', address: 'address' } };
+      const res = { send: jest.fn() };
+
+      await registerController(req, res);
+
+      expect(res.send).toHaveBeenCalledWith({ message: 'Answer is Required' });
+    });
+
+    it('should return error if user already exists', async () => {
+      const req = { body: { name: 'name', email: 'test@test.com', password: 'password', phone: '1234567890', address: 'address', answer: 'answer' } };
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      userModel.findOne.mockResolvedValue({ email: 'test@test.com' });
+
+      await registerController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: 'Already Register please login',
+      });
+    });
+
+    it('should register user successfully', async () => {
+      const req = { body: { name: 'name', email: 'test@test.com', password: 'password', phone: '1234567890', address: 'address', answer: 'answer' } };
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      userModel.findOne.mockResolvedValue(null);
+      hashPassword.mockResolvedValue('hashedPassword');
+      userModel.prototype.save.mockResolvedValue({
+        _id: 'userId',
+        name: 'name',
+        email: 'test@test.com',
+        phone: '1234567890',
+        address: 'address',
+        password: 'hashedPassword',
+        answer: 'answer',
+      });
+
+      await registerController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        message: 'User Register Successfully',
+        user: {
+          _id: 'userId',
+          name: 'name',
+          email: 'test@test.com',
+          phone: '1234567890',
+          address: 'address',
+          password: 'hashedPassword',
+          answer: 'answer',
+        },
+      });
+    });
   });
 
   describe('loginController', () => {
