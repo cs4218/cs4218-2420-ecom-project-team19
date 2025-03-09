@@ -1,9 +1,15 @@
 import React from "react";
 
 const CategoryForm = ({ handleSubmit, value, setValue }) => {
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if (!value.trim()) return;
+    handleSubmit(e);
+  };
+
   return (
     <>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={onSubmit} data-testid="category-form">
         <div className="mb-3">
           <input
             type="text"
