@@ -1,22 +1,7 @@
-// import { hashPassword, comparePassword } from './authHelper';
-import { expect, jest } from '@jest/globals';
+import bcrypt from 'bcrypt';
+import { hashPassword, comparePassword } from './authHelper';
 
-jest.unstable_mockModule('bcrypt', () => ({
-  __esModule: true,
-  default: {
-    hash: jest.fn(),
-    compare: jest.fn(),
-  }
-}));
-
-jest.unstable_mockModule('console', () => ({
-  log: jest.fn(),
-}));
-
-const bcrypt = await import('bcrypt');
-const { hashPassword, comparePassword } = await import('./authHelper');
-
-// const bcrypt = jest.requireMock('bcrypt');
+jest.mock('bcrypt');
 
 describe('authHelper', () => {
   describe('hashPassword', () => {
@@ -28,18 +13,18 @@ describe('authHelper', () => {
     it('should hash the password correctly', async () => {
       const password = 'testPassword';
       const hashedPassword = 'hashedPassword';
-      bcrypt.default.hash.mockResolvedValue(hashedPassword);
+      bcrypt.hash.mockResolvedValue(hashedPassword);
 
       const result = await hashPassword(password);
 
-      expect(bcrypt.default.hash).toHaveBeenCalledWith(password, 10);
+      expect(bcrypt.hash).toHaveBeenCalledWith(password, 10);
       expect(result).toBe(hashedPassword);
     });
 
     it('should handle errors', async () => {
       const password = 'testPassword';
       const error = new Error('Hashing error');
-      bcrypt.default.hash.mockRejectedValue(error);
+      bcrypt.hash.mockRejectedValue(error);
 
       console.log = jest.fn();
 
@@ -54,22 +39,22 @@ describe('authHelper', () => {
     it('should return true for matching passwords', async () => {
       const password = 'testPassword';
       const hashedPassword = 'hashedPassword';
-      bcrypt.default.compare.mockResolvedValue(true);
+      bcrypt.compare.mockResolvedValue(true);
 
       const result = await comparePassword(password, hashedPassword);
 
-      expect(bcrypt.default.compare).toHaveBeenCalledWith(password, hashedPassword);
+      expect(bcrypt.compare).toHaveBeenCalledWith(password, hashedPassword);
       expect(result).toBe(true);
     });
 
     it('should return false for non-matching passwords', async () => {
       const password = 'testPassword';
       const hashedPassword = 'hashedPassword';
-      bcrypt.default.compare.mockResolvedValue(false);
+      bcrypt.compare.mockResolvedValue(false);
 
       const result = await comparePassword(password, hashedPassword);
 
-      expect(bcrypt.default.compare).toHaveBeenCalledWith(password, hashedPassword);
+      expect(bcrypt.compare).toHaveBeenCalledWith(password, hashedPassword);
       expect(result).toBe(false);
     });
   });
