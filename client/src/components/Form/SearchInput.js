@@ -8,16 +8,23 @@ const SearchInput = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const trimmedKeyword = values.keyword.trim(); // ✅ Trim whitespace
+
+    if (!trimmedKeyword) {
+      console.warn("🔍 Search keyword is empty after trimming. Skipping API call.");
+      return;
+    }
+
     try {
-      const { data } = await axios.get(
-        `/api/v1/product/search/${values.keyword}`
-      );
-      setValues({ ...values, results: data });
+      const { data } = await axios.get(`/api/v1/product/search/${trimmedKeyword}`);
+      setValues({ ...values, keyword: trimmedKeyword, results: data }); // ✅ Ensure state also updates with trimmed keyword
       navigate("/search");
     } catch (error) {
-      console.log(error);
+      console.error("🔴 Search API Error:", error);
     }
   };
+
   return (
     <div>
       <form className="d-flex" role="search" onSubmit={handleSubmit}>
