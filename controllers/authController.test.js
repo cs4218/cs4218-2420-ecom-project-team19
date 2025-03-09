@@ -133,7 +133,80 @@ describe('Auth Controller', () => {
       expect(res.send).toHaveBeenCalledWith({ success: false, message: 'Invalid email or password' });
     });
 
-    // Add more tests for other validations and successful login
+    it('should return error if user is not found', async () => {
+      const req = { body: { email: 'test@test.com', password: 'password' } };
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      userModel.findOne.mockResolvedValue(null);
+
+      await loginController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.send).toHaveBeenCalledWith({ success: false, message: 'Email is not registerd' });
+    });
+
+    it('should return error if password does not match', async () => {
+      const req = { body: { email: 'test@test.com', password: 'wrongPassword' } };
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      userModel.findOne.mockResolvedValue({ email: 'test@test.com', password: 'hashedPassword' });
+      comparePassword.mockResolvedValue(false);
+
+      await loginController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({ success: false, message: 'Invalid Password' });
+    });
+
+    it('should login successfully', async () => {
+      const req = { body: { email: 'test@test.com', password: 'password' } };
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      userModel.findOne.mockResolvedValue({
+        _id: 'userId',
+        name: 'name',
+        email: 'test@test.com',
+        phone: '1234567890',
+        address: 'address',
+        password: 'hashedPassword',
+        role: 'user',
+      });
+      comparePassword.mockResolvedValue(true);
+      JWT.sign.mockResolvedValue('token');
+
+      await loginController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        message: 'login successfully',
+        user: {
+          _id: 'userId',
+          name: 'name',
+          email: 'test@test.com',
+          phone: '1234567890',
+          address: 'address',
+          role: 'user',
+        },
+        token: 'token',
+      });
+    });
+
+    it('should handle errors gracefully', async () => {
+      const req = { body: { email: 'test@test.com', password: 'password' } };
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      userModel.findOne.mockRejectedValue(new Error('Database error'));
+
+      await loginController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: 'Error in login',
+        error: new Error('Database error'),
+      });
+    });
   });
 
   describe('forgotPasswordController', () => {
