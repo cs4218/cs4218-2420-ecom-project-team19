@@ -42,21 +42,22 @@ export const createProductController = async (req, res) => {
 
     const products = new productModel({ ...req.fields, slug: slugify(name) });
     if (photo) {
+      products.photo = {};
       products.photo.data = fs.readFileSync(photo.path);
       products.photo.contentType = photo.type;
     }
-    await products.save();
+    const product = await products.save();
     res.status(201).send({
       success: true,
       message: "Product Created Successfully",
-      products,
+      products: product,
     });
   } catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
       error,
-      message: "Error in crearing product",
+      message: "Error in creating product",
     });
   }
 };
@@ -73,15 +74,15 @@ export const getProductController = async (req, res) => {
     res.status(200).send({
       success: true,
       counTotal: products.length,
-      message: "ALlProducts ",
+      message: "All Products",
       products,
     });
   } catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Erorr in getting products",
-      error: error.message,
+      message: "Error in getting products",
+      error: error
     });
   }
 };
@@ -101,8 +102,8 @@ export const getSingleProductController = async (req, res) => {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Eror while getitng single product",
-      error,
+      message: "Error while getting single product",
+      error: error
     });
   }
 };
@@ -111,19 +112,25 @@ export const getSingleProductController = async (req, res) => {
 export const productPhotoController = async (req, res) => {
   try {
     const product = await productModel.findById(req.params.pid).select("photo");
-    if (product.photo.data) {
+    if (product.photo && product.photo.data) {
       res.set("Content-type", product.photo.contentType);
       return res.status(200).send(product.photo.data);
+    } else {
+      res.status(500).send({
+        success: false,
+        message: 'Photo not found',
+      });
     }
   } catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Erorr while getting photo",
-      error,
+      message: "Error while getting photo",
+      error: error
     });
   }
 };
+
 
 //delete controller
 export const deleteProductController = async (req, res) => {
@@ -138,7 +145,7 @@ export const deleteProductController = async (req, res) => {
     res.status(500).send({
       success: false,
       message: "Error while deleting product",
-      error,
+      error: error
     });
   }
 };
@@ -173,21 +180,22 @@ export const updateProductController = async (req, res) => {
       { new: true }
     );
     if (photo) {
+      products.photo = {};
       products.photo.data = fs.readFileSync(photo.path);
       products.photo.contentType = photo.type;
     }
-    await products.save();
+    const product = await products.save();
     res.status(201).send({
       success: true,
       message: "Product Updated Successfully",
-      products,
+      products: product
     });
   } catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
       error,
-      message: "Error in Updte product",
+      message: "Error in Updating product",
     });
   }
 };
@@ -208,8 +216,8 @@ export const productFiltersController = async (req, res) => {
     console.log(error);
     res.status(400).send({
       success: false,
-      message: "Error WHile Filtering Products",
-      error,
+      message: "Error while Filtering Products",
+      error: error
     });
   }
 };
@@ -251,7 +259,7 @@ export const productListController = async (req, res) => {
     console.log(error);
     res.status(400).send({
       success: false,
-      message: "error in per page ctrl",
+      message: "Error in per page controller",
       error,
     });
   }
@@ -281,7 +289,7 @@ export const searchProductController = async (req, res) => {
 };
 
 // similar products
-export const realtedProductController = async (req, res) => {
+export const relatedProductController = async (req, res) => {
   try {
     const { pid, cid } = req.params;
     const products = await productModel
@@ -300,7 +308,7 @@ export const realtedProductController = async (req, res) => {
     console.log(error);
     res.status(400).send({
       success: false,
-      message: "error while geting related product",
+      message: "Error while getting related product",
       error,
     });
   }
