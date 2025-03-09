@@ -8,3 +8,4 @@ coverage/
 coverage.json
 coverage.lcov
 lcov-report/
+.env
