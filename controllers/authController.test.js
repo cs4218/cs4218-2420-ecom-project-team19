@@ -4,7 +4,6 @@ import userModel from '../models/userModel';
 import orderModel from '../models/orderModel';
 import { comparePassword, hashPassword } from './../helpers/authHelper';
 import { registerController, loginController, forgotPasswordController, testController, updateProfileController, getOrdersController, getAllOrdersController, orderStatusController } from './authController';
-import { beforeEach } from 'node:test';
 
 jest.mock('../models/userModel');
 jest.mock('../models/orderModel');
