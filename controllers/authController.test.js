@@ -24,7 +24,7 @@ describe('Auth Controller', () => {
 
       await registerController(req, res);
 
-      expect(res.send).toHaveBeenCalledWith({ error: 'Name is Required' });
+      expect(res.send).toHaveBeenCalledWith({ error: 'Name is required' });
     });
 
     it('should return error if email is missing', async () => {
@@ -33,7 +33,7 @@ describe('Auth Controller', () => {
 
       await registerController(req, res);
 
-      expect(res.send).toHaveBeenCalledWith({ message: 'Email is Required' });
+      expect(res.send).toHaveBeenCalledWith({ error: 'Email is required' });
     });
 
     it('should return error if password is missing', async () => {
@@ -42,7 +42,7 @@ describe('Auth Controller', () => {
 
       await registerController(req, res);
 
-      expect(res.send).toHaveBeenCalledWith({ message: 'Password is Required' });
+      expect(res.send).toHaveBeenCalledWith({ error: 'Password is required' });
     });
 
     it('should return error if phone is missing', async () => {
@@ -51,7 +51,7 @@ describe('Auth Controller', () => {
 
       await registerController(req, res);
 
-      expect(res.send).toHaveBeenCalledWith({ message: 'Phone no is Required' });
+      expect(res.send).toHaveBeenCalledWith({ error: 'Phone number is required' });
     });
 
     it('should return error if address is missing', async () => {
@@ -60,7 +60,7 @@ describe('Auth Controller', () => {
 
       await registerController(req, res);
 
-      expect(res.send).toHaveBeenCalledWith({ message: 'Address is Required' });
+      expect(res.send).toHaveBeenCalledWith({ error: 'Address is required' });
     });
 
     it('should return error if answer is missing', async () => {
@@ -69,7 +69,7 @@ describe('Auth Controller', () => {
 
       await registerController(req, res);
 
-      expect(res.send).toHaveBeenCalledWith({ message: 'Answer is Required' });
+      expect(res.send).toHaveBeenCalledWith({ error: 'Answer is required' });
     });
 
     it('should return error if user already exists', async () => {
@@ -80,10 +80,10 @@ describe('Auth Controller', () => {
 
       await registerController(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.status).toHaveBeenCalledWith(409);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
-        message: 'Already Register please login',
+        message: 'You are already registered, please login instead.',
       });
     });
 
@@ -108,7 +108,7 @@ describe('Auth Controller', () => {
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
-        message: 'User Register Successfully',
+        message: 'User registered successfully',
         user: {
           _id: 'userId',
           name: 'name',
@@ -129,8 +129,8 @@ describe('Auth Controller', () => {
 
       await loginController(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.send).toHaveBeenCalledWith({ success: false, message: 'Invalid email or password' });
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.send).toHaveBeenCalledWith({ success: false, message: 'Email and password are required' });
     });
 
     it('should return error if user is not found', async () => {
@@ -142,7 +142,7 @@ describe('Auth Controller', () => {
       await loginController(req, res);
 
       expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.send).toHaveBeenCalledWith({ success: false, message: 'Email is not registerd' });
+      expect(res.send).toHaveBeenCalledWith({ success: false, message: 'User not found' });
     });
 
     it('should return error if password does not match', async () => {
@@ -154,8 +154,8 @@ describe('Auth Controller', () => {
 
       await loginController(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.send).toHaveBeenCalledWith({ success: false, message: 'Invalid Password' });
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.send).toHaveBeenCalledWith({ success: false, message: 'Incorrect password' });
     });
 
     it('should login successfully', async () => {
@@ -179,7 +179,7 @@ describe('Auth Controller', () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
-        message: 'login successfully',
+        message: 'Login successful',
         user: {
           _id: 'userId',
           name: 'name',
@@ -203,7 +203,7 @@ describe('Auth Controller', () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
-        message: 'Error in login',
+        message: 'An error occurred during login',
         error: new Error('Database error'),
       });
     });
@@ -217,7 +217,7 @@ describe('Auth Controller', () => {
       await forgotPasswordController(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.send).toHaveBeenCalledWith({ message: 'Email is required' });
+      expect(res.send).toHaveBeenCalledWith({ error: 'Email is required' });
     });
 
     it('should return error if answer is missing', async () => {
@@ -227,7 +227,7 @@ describe('Auth Controller', () => {
       await forgotPasswordController(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.send).toHaveBeenCalledWith({ message: 'Answer is required' });
+      expect(res.send).toHaveBeenCalledWith({ error: 'Answer is required' });
     });
 
     it('should return error if newPassword is missing', async () => {
@@ -237,7 +237,7 @@ describe('Auth Controller', () => {
       await forgotPasswordController(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.send).toHaveBeenCalledWith({ message: 'New Password is required' });
+      expect(res.send).toHaveBeenCalledWith({ error: 'New password is required' });
     });
 
     it('should return error if user is not found', async () => {
@@ -251,7 +251,7 @@ describe('Auth Controller', () => {
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
-        message: 'Wrong Email Or Answer',
+        message: 'Invalid email or answer',
       });
     });
 
@@ -268,7 +268,7 @@ describe('Auth Controller', () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
-        message: 'Password Reset Successfully',
+        message: 'Password reset successfully',
       });
     });
 
@@ -287,7 +287,7 @@ describe('Auth Controller', () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
-        message: 'Password Reset Successfully',
+        message: 'Password reset successfully',
       });
     });
 
@@ -300,7 +300,7 @@ describe('Auth Controller', () => {
 
       testController(req, res);
 
-      expect(res.send).toHaveBeenCalledWith('Protected Routes');
+      expect(res.send).toHaveBeenCalledWith('Protected route');
     });
   });
 
@@ -311,7 +311,7 @@ describe('Auth Controller', () => {
 
       await updateProfileController(req, res);
 
-      expect(res.json).toHaveBeenCalledWith({ error: 'Passsword is required and 6 character long' });
+      expect(res.json).toHaveBeenCalledWith({ error: 'Password must be at least 6 characters long' });
     });
 
     it('should update profile successfully without password', async () => {
@@ -341,7 +341,7 @@ describe('Auth Controller', () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
-        message: 'Profile Updated SUccessfully',
+        message: 'Profile updated successfully',
         updatedUser: {
           _id: 'userId',
           name: 'newName',
@@ -382,7 +382,7 @@ describe('Auth Controller', () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
-        message: 'Profile Updated SUccessfully',
+        message: 'Profile updated successfully',
         updatedUser: {
           _id: 'userId',
           name: 'newName',
@@ -402,10 +402,10 @@ describe('Auth Controller', () => {
 
       await updateProfileController(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
-        message: 'Error WHile Update profile',
+        message: 'An error occurred while updating profile',
         error: new Error('Database error'),
       });
     });
@@ -443,7 +443,7 @@ describe('Auth Controller', () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
-        message: 'Error WHile Geting Orders',
+        message: 'An error occurred while fetching orders',
         error: new Error('Database error'),
       });
     });
@@ -498,7 +498,61 @@ describe('Auth Controller', () => {
       expect(res.json).toHaveBeenCalledWith([{ orderId: 'order1' }]);
     });
 
-    // Add more tests for error handling
+    it('should handle errors gracefully', async () => {
+      const req = {};
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      orderModel.find.mockImplementation(() => ({
+        populate: () => ({
+          populate: () => ({
+            sort: jest.fn().mockRejectedValue(new Error('Database error')),
+          })
+        })
+      }));
+
+      await getAllOrdersController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: 'An error occurred while fetching orders',
+        error: new Error('Database error'),
+      });
+    });
+
+    it('should return empty array if no orders found', async () => {
+      const req = {};
+      const res = { json: jest.fn(), status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      orderModel.find.mockImplementation(() => ({
+        populate: () => ({
+          populate: () => ({
+            sort: jest.fn().mockResolvedValue([]),
+          })
+        })
+      }));
+
+      await getAllOrdersController(req, res);
+
+      expect(res.json).toHaveBeenCalledWith([]);
+    });
+
+    it('should return orders with populated products and buyer', async () => {
+      const req = {};
+      const res = { json: jest.fn(), status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      orderModel.find.mockImplementation(() => ({
+        populate: jest.fn().mockImplementation(() => ({
+          populate: jest.fn().mockImplementation(() => ({
+            sort: jest.fn().mockResolvedValue([{ orderId: 'order1', products: ['product1'], buyer: { name: 'buyer1' } }]),
+          }))
+        }))
+      }));
+
+      await getAllOrdersController(req, res);
+
+      expect(res.json).toHaveBeenCalledWith([{ orderId: 'order1', products: ['product1'], buyer: { name: 'buyer1' } }]);
+    });
   });
 
   describe('orderStatusController', () => {
@@ -512,6 +566,20 @@ describe('Auth Controller', () => {
       expect(res.json).toHaveBeenCalledWith({ orderId: 'orderId', status: 'shipped' });
     });
 
-    // Add more tests for error handling
+    it('should handle errors gracefully', async () => {
+      const req = { params: { orderId: 'orderId' }, body: { status: 'shipped' } };
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      orderModel.findByIdAndUpdate.mockRejectedValue(new Error('Database error'));
+
+      await orderStatusController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: 'An error occurred while updating order status',
+        error: new Error('Database error'),
+      });
+    });
   });
 });
