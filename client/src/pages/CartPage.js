@@ -18,20 +18,19 @@ const CartPage = () => {
   const navigate = useNavigate();
 
   //total price
-  const totalPrice = () => {
+  const totalPrice = (cart) => {
+    if (!cart || cart.length === 0) return "$0.00";
     try {
-      let total = 0;
-      cart?.map((item) => {
-        total = total + item.price;
-      });
-      return total.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
+        let total = cart.reduce((acc, item) => acc + (item.price || 0), 0);
+        return total.toLocaleString("en-US", {
+            style: "currency",
+            currency: "USD",
+        });
     } catch (error) {
-      console.log(error);
+        console.log(error);
+        return "$0.00"; // Fail-safe return
     }
-  };
+};
   //detele item
   const removeCartItem = (pid) => {
     try {
@@ -49,11 +48,13 @@ const CartPage = () => {
   const getToken = async () => {
     try {
       const { data } = await axios.get("/api/v1/product/braintree/token");
+      console.log("Setting Client Token:", data?.clientToken); // ✅ Debug clientToken
       setClientToken(data?.clientToken);
     } catch (error) {
       console.log(error);
     }
   };
+
   useEffect(() => {
     getToken();
   }, [auth?.token]);
@@ -62,18 +63,25 @@ const CartPage = () => {
   const handlePayment = async () => {
     try {
       setLoading(true);
+      console.log("🔹 handlePayment() called");
+      if (!instance) {
+        console.log("🚨 instance is undefined! Payment cannot proceed.");
+        return;
+      }
       const { nonce } = await instance.requestPaymentMethod();
+      console.log("✅ Payment nonce received:", nonce);
       const { data } = await axios.post("/api/v1/product/braintree/payment", {
         nonce,
         cart,
       });
       setLoading(false);
+      console.log("✅ Payment request successful:", data);
       localStorage.removeItem("cart");
       setCart([]);
       navigate("/dashboard/user/orders");
       toast.success("Payment Completed Successfully ");
     } catch (error) {
-      console.log(error);
+      console.log("🚨 Error in handlePayment:", error);
       setLoading(false);
     }
   };
@@ -112,7 +120,7 @@ const CartPage = () => {
                   </div>
                   <div className="col-md-4">
                     <p>{p.name}</p>
-                    <p>{p.description.substring(0, 30)}</p>
+                    <p>{p.description ? p.description.substring(0, 30) : "No description available"}</p>
                     <p>Price : {p.price}</p>
                   </div>
                   <div className="col-md-4 cart-remove-btn">
@@ -130,7 +138,7 @@ const CartPage = () => {
               <h2>Cart Summary</h2>
               <p>Total | Checkout | Payment</p>
               <hr />
-              <h4>Total : {totalPrice()} </h4>
+              <h4>Total : {cart.length > 0 ? totalPrice(cart) : "$0.00"}</h4>
               {auth?.user?.address ? (
                 <>
                   <div className="mb-3">
@@ -173,21 +181,22 @@ const CartPage = () => {
                 ) : (
                   <>
                     <DropIn
+                      data-testid="braintree-dropin"
                       options={{
                         authorization: clientToken,
-                        paypal: {
-                          flow: "vault",
-                        },
+                        paypal: { flow: "vault" },
                       }}
-                      onInstance={(instance) => setInstance(instance)}
+                      onInstance={(inst) => {
+                        console.log("DropIn instance set:", inst);
+                        setInstance(inst);
+                      }}
                     />
-
                     <button
-                      className="btn btn-primary"
-                      onClick={handlePayment}
-                      disabled={loading || !instance || !auth?.user?.address}
+                        className="btn btn-primary"
+                        onClick={handlePayment}
+                        disabled={loading || !instance || !auth?.user?.address}
                     >
-                      {loading ? "Processing ...." : "Make Payment"}
+                        {loading ? "Processing ...." : "Make Payment"}
                     </button>
                   </>
                 )}
