@@ -10,6 +10,7 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "sonarqube": "sonar-scanner",
     "test": "npm run test:frontend & npm run test:backend",
+    "test:bhanuka": "jest client/src/components/UserMenu.test.js client/src/components/Routes/Private.test.js controllers/productController.test.js models/productModel.test.js models/userModel.test.js client/src/pages/user/Dashboard.test.js --coverage --collectCoverageFrom client/src/components/UserMenu.js --collectCoverageFrom client/src/components/Routes/Private.js --collectCoverageFrom controllers/productController.js --collectCoverageFrom models/productModel.js --collectCoverageFrom models/userModel.js --collectCoverageFrom client/src/pages/user/Dashboard.js --coverageDirectory=coverage",
     "test:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.config.js",
     "test:backend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js"
   },
