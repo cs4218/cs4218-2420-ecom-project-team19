@@ -3,17 +3,6 @@ export default {
 
     testEnvironment: "jest-environment-jsdom",
 
-    testMatch: [
-        "<rootDir>/client/src/components/Footer.test.js",
-        "<rootDir>/client/src/components/Header.test.js",
-        "<rootDir>/client/src/components/Layout.test.js",
-        "<rootDir>/client/src/components/Spinner.test.js",
-        "<rootDir>/client/src/pages/About.test.js",
-        "<rootDir>/client/src/pages/Pagenotfound.test.js",
-        "<rootDir>/client/src/pages/user/Orders.test.js",
-        "<rootDir>/client/src/pages/user/Profile.test.js",
-    ],
-
     transform: {
       "^.+\\.(js|jsx|ts|tsx)$": "babel-jest",
     },
@@ -24,18 +13,20 @@ export default {
 
     transformIgnorePatterns: ["/node_modules/(?!(styleMock\\.js)$)"],
 
-    // Collect coverage only from relevant frontend files
+    // only run these tests
+    // "<rootDir>/client/src/pages/**/*.test.js"
+    // set to only admin for local testing
+    testMatch: ["<rootDir>/client/src/(pages|context|hooks|components)/**/*.test.js"],
+
+    // jest code coverage
     collectCoverage: true,
-    collectCoverageFrom: [
-        "<rootDir>/client/src/components/Footer.js",
-        "<rootDir>/client/src/components/Header.js",
-        "<rootDir>/client/src/components/Layout.js",
-        "<rootDir>/client/src/components/Spinner.js",
-        "<rootDir>/client/src/pages/About.js",
-        "<rootDir>/client/src/pages/Pagenotfound.js",
-        "<rootDir>/client/src/pages/user/Orders.js",
-        "<rootDir>/client/src/pages/user/Profile.js",
-    ],
+    collectCoverageFrom: ["<rootDir>/client/src/(pages|context|hooks|components)/**/*.js"],
+    coverageThreshold: {
+      global: {
+        lines: 100,
+        functions: 100,
+      },
+    },
 
     coverageThreshold: {
       global: {
