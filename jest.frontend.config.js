@@ -16,7 +16,8 @@ export default {
     // only run these tests
     // "<rootDir>/client/src/pages/**/*.test.js"
     // set to only admin for local testing
-    testMatch: ["<rootDir>/client/src/components/**/*.test.js",
+    testMatch: ["<rootDir>/client/src/components/Form/*.test.js",
+      "<rootDir>/client/src/components/Route/Private.test.js",
       "<rootDir>/client/src/components/*.test.js",
       "<rootDir>/client/src/context/*.test.js",
       "<rootDir>/client/src/hooks/*.test.js", 
@@ -25,7 +26,14 @@ export default {
 
     // jest code coverage
     collectCoverage: true,
-    collectCoverageFrom: ["<rootDir>/client/src/(pages|context|hooks|components)/**/*.js"],
+    collectCoverageFrom: ["<rootDir>/client/src/components/Form/*.js",
+      "<rootDir>/client/src/components/Route/Private.js",
+      "<rootDir>/client/src/components/*.js",
+      "<rootDir>/client/src/context/*.js",
+      "<rootDir>/client/src/hooks/*.js", 
+      "<rootDir>/client/src/pages/**/*.js",
+      "<rootDir>/client/src/pages/*.js"],
+
     coverageThreshold: {
       global: {
         lines: 100,

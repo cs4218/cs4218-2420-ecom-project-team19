@@ -1,34 +1,13 @@
-// import JWT from 'jsonwebtoken';
-// import mongoose from 'mongoose';
-// import userModel from '../models/userModel';
-// import { requireSignIn, isAdmin } from './authMiddleware';
-import { jest } from '@jest/globals';
+import JWT from 'jsonwebtoken';
+import mongoose from 'mongoose';
+import userModel from '../models/userModel';
+import { requireSignIn, isAdmin } from './authMiddleware';
 
-jest.unstable_mockModule('jsonwebtoken', () => ({
-  __esModule: true,
-  default: {
-    verify: jest.fn()
-  }
+jest.mock('jsonwebtoken');
+jest.mock('mongoose');
+jest.mock('../models/userModel', () => ({
+  findById: jest.fn(),
 }));
-const JWT = await import('jsonwebtoken');
-jest.unstable_mockModule('mongoose', () => ({
-  __esModule: true,
-  default: {
-    model: jest.fn(),
-    Schema: jest.fn()
-  }
-}));
-const mongoose = await import('mongoose');
-
-jest.unstable_mockModule('../models/userModel', () => ({
-  __esModule: true,
-  default: { findById: jest.fn() }
-}));
-
-const userModel = await import('../models/userModel');
-
-
-const { requireSignIn, isAdmin } = await import('./authMiddleware');
 
 describe('Auth Middleware', () => {
   describe('requireSignIn', () => {
@@ -42,11 +21,11 @@ describe('Auth Middleware', () => {
       const next = jest.fn();
       const decodedToken = { userId: '123' };
 
-      JWT.default.verify.mockReturnValue(decodedToken);
+      JWT.verify.mockReturnValue(decodedToken);
 
       await requireSignIn(req, res, next);
 
-      expect(JWT.default.verify).toHaveBeenCalledWith('valid-token', process.env.JWT_SECRET);
+      expect(JWT.verify).toHaveBeenCalledWith('valid-token', process.env.JWT_SECRET);
       expect(req.user).toEqual(decodedToken);
       expect(next).toHaveBeenCalled();
     });
@@ -61,7 +40,7 @@ describe('Auth Middleware', () => {
       const next = jest.fn();
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
 
-      JWT.default.verify.mockImplementation(() => {
+      JWT.verify.mockImplementation(() => {
         throw new Error('Invalid token');
       });
 
@@ -85,11 +64,11 @@ describe('Auth Middleware', () => {
       const next = jest.fn();
       const user = { role: 1 };
 
-      userModel.default.findById.mockResolvedValue(user);
+      userModel.findById.mockResolvedValue(user);
 
       await isAdmin(req, res, next);
 
-      expect(userModel.default.findById).toHaveBeenCalledWith('123');
+      expect(userModel.findById).toHaveBeenCalledWith('123');
       expect(next).toHaveBeenCalled();
     });
 
@@ -106,11 +85,11 @@ describe('Auth Middleware', () => {
       const next = jest.fn();
       const user = { role: 0 };
 
-      userModel.default.findById.mockResolvedValue(user);
+      userModel.findById.mockResolvedValue(user);
 
       await isAdmin(req, res, next);
 
-      expect(userModel.default.findById).toHaveBeenCalledWith('123');
+      expect(userModel.findById).toHaveBeenCalledWith('123');
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
@@ -132,7 +111,7 @@ describe('Auth Middleware', () => {
       const next = jest.fn();
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
 
-      userModel.default.findById.mockImplementation(() => {
+      userModel.findById.mockImplementation(() => {
         throw new Error('Database error');
       });
 
