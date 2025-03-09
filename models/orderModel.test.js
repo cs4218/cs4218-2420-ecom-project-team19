@@ -82,7 +82,7 @@ describe("Order Model", () => {
     expect(order.status).toBe("Not Process");
   });
 
-  it("should fail to save an order without payment", async () => {
+  it("fails to save an order without payment", async () => {
     const order = new Order({
       products: [new mongoose.Types.ObjectId()],
       buyer: new mongoose.Types.ObjectId(),
@@ -92,7 +92,7 @@ describe("Order Model", () => {
     await expect(order.save()).rejects.toThrow(mongoose.Error.ValidationError);
   });
 
-  it("should fail to save an order without products", async () => {
+  it("fails to save an order without products", async () => {
     const order = new Order({
       payment: { method: "Credit Card" },
       buyer: new mongoose.Types.ObjectId(),
@@ -101,7 +101,7 @@ describe("Order Model", () => {
     await expect(order.save()).rejects.toThrow(mongoose.Error.ValidationError);
   });
 
-  it("should fail to save an order without a buyer", async () => {
+  it("fails to save an order without a buyer", async () => {
     const order = new Order({
       products: [new mongoose.Types.ObjectId()],
       payment: { method: "Credit Card" },
@@ -111,7 +111,7 @@ describe("Order Model", () => {
     await expect(order.save()).rejects.toThrow(mongoose.Error.ValidationError);
   });
 
-  it("should fail to save an order with an invalid status", async () => {
+  it("fails to save an order with an invalid status", async () => {
     const order = new Order({
       products: [new mongoose.Types.ObjectId()],
       payment: { method: "Credit Card" },
