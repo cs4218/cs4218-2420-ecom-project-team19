@@ -7,8 +7,7 @@ import {
     categoryControlller,
     singleCategoryController,
     deleteCategoryCOntroller,
-} from "./categoryController"
-import { beforeEach } from "node:test";
+} from "./categoryController";
 
 jest.mock("../models/categoryModel.js");
 jest.mock("slugify");
