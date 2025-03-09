@@ -13,13 +13,13 @@ jest.mock("./../components/Layout", () => ({children, title}) => (
     </div>
 ));
 
-describe("Pagenotfound page", () => {
+describe("Given Pagenotfound page", () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
     // Test for correct title
-    test("Layout rendered with correct title", () => {
+    test("When rendered with title", () => {
         render(
             <BrowserRouter>
                 <Pagenotfound/>
@@ -29,7 +29,7 @@ describe("Pagenotfound page", () => {
     });
 
     // Test for correct error code
-    test("Page rendered with correct error code", () => {
+    test("When rendered with error code", () => {
         render(
             <BrowserRouter>
                 <Pagenotfound/>
@@ -39,7 +39,7 @@ describe("Pagenotfound page", () => {
     });
 
     // Test for correct heading
-    test("Page rendered with correct heading", () => {
+    test("When rendered with heading", () => {
         render(
             <BrowserRouter>
                 <Pagenotfound/>
@@ -49,7 +49,7 @@ describe("Pagenotfound page", () => {
     });
 
     // Test if Go back link is rendered
-    test("Page rendered with link", () => {
+    test("When rendered with link", () => {
         render(
             <BrowserRouter>
                 <Pagenotfound/>
@@ -59,7 +59,7 @@ describe("Pagenotfound page", () => {
     });
 
     // Test link's behaviour
-    test("Link in page directs to the correct destination", () => {
+    test("When link is clicked", () => {
         render(
             <BrowserRouter>
                 <Pagenotfound/>

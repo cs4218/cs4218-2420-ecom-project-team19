@@ -218,7 +218,7 @@ describe("Given that no user is logged in", () => {
         );
 
         expect(screen.getByRole("link", {name: "Login"})).toBeInTheDocument();
-        expect(screen.getByRole("link", {name: "Cart"})).toBeInTheDocument();
+        expect(screen.getByRole("link", {name: "Register"})).toBeInTheDocument();
     });
 
     // Test Register link's behavior
