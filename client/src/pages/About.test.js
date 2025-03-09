@@ -14,19 +14,19 @@ jest.mock("./../components/Layout", () => ({children, title}) => (
 /* Since About page is purely UI components with no functionality,
 the focus is to test for correct rendering, styling and structure */
 
-describe("About Page", () => {
+describe("Given About Page", () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
     // Test for correct title
-    test("Layout rendered with correct title", () => {
+    test("When Layout is rendered with title", () => {
         render(<About/>);
         expect(screen.getByText("About us - Ecommerce app")).toBeInTheDocument();
     });
 
     // Test for image
-    test("Page rendered with image", () => {
+    test("When rendered with image", () => {
         render(<About/>);
         const img = screen.getByRole("img");
         expect(img).toHaveAttribute("src", "/images/about.jpeg");
@@ -35,7 +35,7 @@ describe("About Page", () => {
     });
 
     // Test for correct paragraph
-    test("Page rendered with correct paragraph", () => {
+    test("When rendered with paragraph", () => {
         render(<About/>);
         expect(screen.getByText("Add text")).toBeInTheDocument();
     });
