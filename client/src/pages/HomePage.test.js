@@ -506,7 +506,6 @@ describe("More Details Button Navigation", () => {
         await waitFor(() => screen.findByText("Laptop"));
     
         console.log("Rendered UI before clicking button:");
-        screen.debug(); // 🔍 Check what is actually rendered
     
         fireEvent.click(await screen.findByRole("button", { name: /View Product/i })); // Ensure label matches
     
