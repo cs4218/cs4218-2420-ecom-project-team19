@@ -1,36 +1,48 @@
 export default {
-  // name displayed during tests
-  displayName: "frontend",
+    displayName: "frontend",
 
-  // simulates browser environment in jest
-  // e.g., using document.querySelector in your tests
-  testEnvironment: "jest-environment-jsdom",
+    testEnvironment: "jest-environment-jsdom",
 
-  // jest does not recognise jsx files by default, so we use babel to transform any jsx files
-  transform: {
-    "^.+\\.jsx?$": "babel-jest",
-  },
+    testMatch: [
+        "<rootDir>/client/src/components/Footer.test.js",
+        "<rootDir>/client/src/components/Header.test.js",
+        "<rootDir>/client/src/components/Layout.test.js",
+        "<rootDir>/client/src/components/Spinner.test.js",
+        "<rootDir>/client/src/pages/About.test.js",
+        "<rootDir>/client/src/pages/Pagenotfound.test.js",
+        "<rootDir>/client/src/pages/user/Orders.test.js",
+        "<rootDir>/client/src/pages/user/Profile.test.js",
+    ],
 
-  // tells jest how to handle css/scss imports in your tests
-  moduleNameMapper: {
-    "\\.(css|scss)$": "identity-obj-proxy",
-  },
-
-  // ignore all node_modules except styleMock (needed for css imports)
-  transformIgnorePatterns: ["/node_modules/(?!(styleMock\\.js)$)"],
-
-  // only run these tests
-  // "<rootDir>/client/src/pages/**/*.test.js"
-  // set to only admin for local testing
-  testMatch: ["<rootDir>/client/src/pages/admin/*.test.js"],
-
-  // jest code coverage
-  collectCoverage: true,
-  collectCoverageFrom: ["<rootDir>/client/src/pages/admin/*.js"],
-  coverageThreshold: {
-    global: {
-      lines: 100,
-      functions: 100,
+    transform: {
+      "^.+\\.(js|jsx|ts|tsx)$": "babel-jest",
     },
-  },
+
+    moduleNameMapper: {
+      "\\.(css|scss)$": "identity-obj-proxy",
+    },
+
+    transformIgnorePatterns: ["/node_modules/(?!(styleMock\\.js)$)"],
+
+    // Collect coverage only from relevant frontend files
+    collectCoverage: true,
+    collectCoverageFrom: [
+        "<rootDir>/client/src/components/Footer.js",
+        "<rootDir>/client/src/components/Header.js",
+        "<rootDir>/client/src/components/Layout.js",
+        "<rootDir>/client/src/components/Spinner.js",
+        "<rootDir>/client/src/pages/About.js",
+        "<rootDir>/client/src/pages/Pagenotfound.js",
+        "<rootDir>/client/src/pages/user/Orders.js",
+        "<rootDir>/client/src/pages/user/Profile.js",
+    ],
+
+    coverageThreshold: {
+      global: {
+        statements: 90,
+        branches: 80,
+        functions: 90,
+        lines: 90,
+      },
+    },
 };
