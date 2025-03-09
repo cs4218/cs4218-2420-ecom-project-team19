@@ -314,7 +314,101 @@ describe('Auth Controller', () => {
       expect(res.json).toHaveBeenCalledWith({ error: 'Passsword is required and 6 character long' });
     });
 
-    // Add more tests for other validations and successful profile update
+    it('should update profile successfully without password', async () => {
+      const req = { body: { name: 'newName', email: 'newEmail@test.com', address: 'newAddress', phone: '9876543210' }, user: { _id: 'userId' } };
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      userModel.findById.mockResolvedValue({
+        _id: 'userId',
+        name: 'oldName',
+        email: 'oldEmail@test.com',
+        address: 'oldAddress',
+        phone: '1234567890',
+        password: 'hashedPassword',
+      });
+
+      userModel.findByIdAndUpdate.mockResolvedValue({
+        _id: 'userId',
+        name: 'newName',
+        email: 'newEmail@test.com',
+        address: 'newAddress',
+        phone: '9876543210',
+        password: 'hashedPassword',
+      });
+
+      await updateProfileController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        message: 'Profile Updated SUccessfully',
+        updatedUser: {
+          _id: 'userId',
+          name: 'newName',
+          email: 'newEmail@test.com',
+          address: 'newAddress',
+          phone: '9876543210',
+          password: 'hashedPassword',
+        },
+      });
+    });
+
+    it('should update profile successfully with password', async () => {
+      const req = { body: { name: 'newName', email: 'newEmail@test.com', address: 'newAddress', phone: '9876543210', password: 'newPassword' }, user: { _id: 'userId' } };
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      userModel.findById.mockResolvedValue({
+        _id: 'userId',
+        name: 'oldName',
+        email: 'oldEmail@test.com',
+        address: 'oldAddress',
+        phone: '1234567890',
+        password: 'hashedPassword',
+      });
+
+      hashPassword.mockResolvedValue('newHashedPassword');
+
+      userModel.findByIdAndUpdate.mockResolvedValue({
+        _id: 'userId',
+        name: 'newName',
+        email: 'newEmail@test.com',
+        address: 'newAddress',
+        phone: '9876543210',
+        password: 'newHashedPassword',
+      });
+
+      await updateProfileController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        message: 'Profile Updated SUccessfully',
+        updatedUser: {
+          _id: 'userId',
+          name: 'newName',
+          email: 'newEmail@test.com',
+          address: 'newAddress',
+          phone: '9876543210',
+          password: 'newHashedPassword',
+        },
+      });
+    });
+
+    it('should handle errors gracefully', async () => {
+      const req = { body: { name: 'newName', email: 'newEmail@test.com', address: 'newAddress', phone: '9876543210' }, user: { _id: 'userId' } };
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      userModel.findById.mockRejectedValue(new Error('Database error'));
+
+      await updateProfileController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: 'Error WHile Update profile',
+        error: new Error('Database error'),
+      });
+    });
   });
 
   describe('getOrdersController', () => {
@@ -333,8 +427,58 @@ describe('Auth Controller', () => {
       expect(res.json).toHaveBeenCalledWith([{ orderId: 'order1' }]);
     });
 
-    // Add more tests for error handling
+
+    it('should handle errors gracefully', async () => {
+      const req = { user: { _id: 'userId' } };
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      orderModel.find.mockImplementation(() => ({
+        populate: () => ({
+          populate: jest.fn().mockRejectedValue(new Error('Database error')),
+        })
+      }));
+
+      await getOrdersController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: 'Error WHile Geting Orders',
+        error: new Error('Database error'),
+      });
+    });
+
+    it('should return empty array if no orders found', async () => {
+      const req = { user: { _id: 'userId' } };
+      const res = { json: jest.fn(), status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      orderModel.find.mockImplementation(() => ({
+        populate: () => ({
+          populate: jest.fn().mockResolvedValue([]),
+        })
+      }));
+
+      await getOrdersController(req, res);
+
+      expect(res.json).toHaveBeenCalledWith([]);
+    });
+
+    it('should return orders with populated products and buyer', async () => {
+      const req = { user: { _id: 'userId' } };
+      const res = { json: jest.fn(), status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      orderModel.find.mockImplementation(() => ({
+        populate: jest.fn().mockImplementation(() => ({
+          populate: jest.fn().mockResolvedValue([{ orderId: 'order1', products: ['product1'], buyer: { name: 'buyer1' } }]),
+        }))
+      }));
+
+      await getOrdersController(req, res);
+
+      expect(res.json).toHaveBeenCalledWith([{ orderId: 'order1', products: ['product1'], buyer: { name: 'buyer1' } }]);
+    });
   });
+
 
   describe('getAllOrdersController', () => {
     it('should return all orders', async () => {
