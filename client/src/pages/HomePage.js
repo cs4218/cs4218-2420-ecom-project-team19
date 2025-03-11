@@ -28,7 +28,7 @@ const HomePage = () => {
         setCategories(data?.category);
       }
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      console.log("Error fetching categories:", error);
     }
   };
 
@@ -46,7 +46,7 @@ const HomePage = () => {
       setProducts(data.products);
     } catch (error) {
       setLoading(false);
-      console.error("Error fetching products:", error);
+      console.log("Error fetching products:", error);
     }
   };
 

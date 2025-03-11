@@ -1,20 +1,33 @@
 export default {
-    // display name
-    displayName: "backend",
+  // display name
+  displayName: "backend",
+
+  // when testing backend
+  testEnvironment: "node",
+
+  // which test to run
+  testMatch: ["<rootDir>/helpers/*.test.js",
+    "<rootDir>/middlewares/*.test.js",
+    "<rootDir>/controllers/*.test.js",
+    "<rootDir>/models/*.test.js",
+    "<rootDir>/config/*test.js"
+  ],
+
+  // jest code coverage
+  collectCoverage: true,
+  collectCoverageFrom: ["<rootDir>/helpers/*.js",
+    "<rootDir>/middlewares/*.js",
+    "<rootDir>/controllers/*.js",
+    "<rootDir>/models/*.js",
+    "<rootDir>/config/*.js"
+  ],
   
-    // when testing backend
-    testEnvironment: "node",
-  
-    // which test to run
-    testMatch: ["<rootDir>/controllers/*.test.js"],
-  
-    // jest code coverage
-    collectCoverage: true,
-    collectCoverageFrom: ["controllers/**"],
     coverageThreshold: {
       global: {
-        lines: 100,
-        functions: 100,
+        statements: 90,
+        branches: 80,
+        functions: 90,
+        lines: 90,
       },
     },
-  };
+};

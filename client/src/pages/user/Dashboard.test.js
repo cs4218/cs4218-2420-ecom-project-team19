@@ -14,6 +14,7 @@ jest.mock("../../context/cart", () => ({ useCart: jest.fn(() => [null, jest.fn()
 jest.mock("../../context/search", () => ({ useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]) }));
 jest.mock("../../hooks/useCategory", () => jest.fn(() => []));
 jest.mock("../../context/auth", () => ({ useAuth: jest.fn() }));
+jest.mock("../../styles/Header.css", () => ({}));
 
 const renderWithRouter = (ui) => render(<BrowserRouter>{ui}</BrowserRouter>);
 

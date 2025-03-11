@@ -1,5 +1,5 @@
 import React from "react";
-import { renderHook, waitFor } from "@testing-library/react";
+import { renderHook, waitFor, act } from "@testing-library/react";
 import { StrictMode } from "react";
 import useCategory from "../hooks/useCategory";
 import axios from "axios";
@@ -27,12 +27,15 @@ describe("useCategory Hook Tests", () => {
             { _id: "2", name: "Clothing" },
         ];
         axios.get.mockResolvedValueOnce({ data: { category: mockCategories } });
-    
+
         const { result } = renderHook(() => useCategory(), {
             wrapper: ({ children }) => <StrictMode>{children}</StrictMode>,
         });
-    
-        await waitFor(() => expect(result.current).toEqual(mockCategories));
+
+        // Wait for the state to update properly
+        await waitFor(() => {
+            expect(result.current).toEqual(mockCategories);
+        });
     });
 
     test("Hook handles API returning an empty category list", async () => {

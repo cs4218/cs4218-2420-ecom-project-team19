@@ -1,6 +1,6 @@
 /* eslint-disable testing-library/no-wait-for-multiple-assertions */
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import CartPage from "../pages/CartPage";
 import { useCart } from "../context/cart";
 import { useAuth } from "../context/auth";
@@ -35,7 +35,6 @@ describe("CartPage Tests", () => {
         localStorage.clear();
 
         axios.get.mockImplementation((url) => {
-            console.log("Mocked API Call:", url);
             if (url === "/api/v1/product/braintree/token") {
                 return Promise.resolve({ data: { clientToken: "mock-client-token" } });
             }
@@ -44,30 +43,34 @@ describe("CartPage Tests", () => {
     });
     
 
-    test("Displays an empty cart message when no items are present", () => {
+    test("Displays an empty cart message when no items are present", async () => {
         useCart.mockReturnValue([[], setCartMock]);
         useAuth.mockReturnValue([{ user: { name: "Test User" }, token: "12345" }]);
 
-        render(<CartPage />);
+        await act(async () => {
+            render(<CartPage />);
+        });
 
         expect(screen.getByText("Your Cart Is Empty")).toBeInTheDocument();
     });
 
-    test("Displays cart items correctly", () => {
+    test("Displays cart items correctly", async () => {
         useCart.mockReturnValue([
             [{ _id: "1", name: "Laptop", price: 999.99, description: "Powerful laptop" }],
             setCartMock,
         ]);
         useAuth.mockReturnValue([{ user: { name: "Test User" }, token: "12345" }]);
 
-        render(<CartPage />);
+        await act(async () => {
+            render(<CartPage />);
+        });
 
         expect(screen.getByText("Laptop")).toBeInTheDocument();
         expect(screen.getByText("Powerful laptop")).toBeInTheDocument();
         expect(screen.getByText("Price : 999.99")).toBeInTheDocument();
     });
 
-    test("Displays correct total price", () => {
+    test("Displays correct total price", async () => {
         useCart.mockReturnValue([
             [
                 { _id: "1", price: 50 },
@@ -77,12 +80,14 @@ describe("CartPage Tests", () => {
         ]);
         useAuth.mockReturnValue([{ user: { name: "Test User" }, token: "12345" }]);
 
-        render(<CartPage />);
+        await act(async () => {
+            render(<CartPage />);
+        });
 
         expect(screen.getByText("Total : $150.00")).toBeInTheDocument();
     });  
 
-    test("Clicking 'Remove' button removes the item from the cart", () => {
+    test("Clicking 'Remove' button removes the item from the cart", async () => {
         const mockCart = [
             { _id: "1", name: "Laptop", price: 999.99 },
             { _id: "2", name: "Phone", price: 699.99 },
@@ -90,19 +95,23 @@ describe("CartPage Tests", () => {
         useCart.mockReturnValue([mockCart, setCartMock]);
         useAuth.mockReturnValue([{ user: { name: "Test User" }, token: "12345" }]);
 
-        render(<CartPage />);
+        await act(async () => {
+            render(<CartPage />);
+        });
 
         fireEvent.click(screen.getAllByText("Remove")[0]);
 
         expect(setCartMock).toHaveBeenCalledWith([{ _id: "2", name: "Phone", price: 699.99 }]);
     });
 
-    test("LocalStorage is updated when item is removed", () => {
+    test("LocalStorage is updated when item is removed", async () => {
         const mockCart = [{ _id: "1", name: "Laptop", price: 999.99 }];
         useCart.mockReturnValue([mockCart, setCartMock]);
         useAuth.mockReturnValue([{ user: { name: "Test User" }, token: "12345" }]);
 
-        render(<CartPage />);
+        await act(async () => {
+            render(<CartPage />);
+        });
 
         fireEvent.click(screen.getByText("Remove"));
 
@@ -117,28 +126,34 @@ describe("CartPage Tests", () => {
         useAuth.mockReturnValue([{ user: { name: "Test User" }, token: "12345" }]);
         axios.get.mockResolvedValueOnce({ data: { clientToken: "mock-token" } });
 
-        render(<CartPage />);
+        await act(async () => {
+            render(<CartPage />);
+        });
 
         await waitFor(() => expect(screen.getByTestId("braintree-dropin")).toBeInTheDocument());
     });
 
-    test("Make Payment button is disabled when cart is empty", () => {
+    test("Make Payment button is disabled when cart is empty", async () => {
         useCart.mockReturnValue([[], setCartMock]);
         useAuth.mockReturnValue([{ user: { name: "Test User" }, token: "12345" }]);
 
-        render(<CartPage />);
+        await act(async () => {
+            render(<CartPage />);
+        });
 
         expect(screen.queryByText("Make Payment")).not.toBeInTheDocument();
     });
 
-    test("Make Payment button is disabled when user is not logged in", () => {
+    test("Make Payment button is disabled when user is not logged in", async () => {
         useCart.mockReturnValue([
             [{ _id: "1", price: 50 }],
             setCartMock,
         ]);
         useAuth.mockReturnValue([{ user: null, token: null }]);
 
-        render(<CartPage />);
+        await act(async () => {
+            render(<CartPage />);
+        });
 
         expect(screen.queryByText("Make Payment")).not.toBeInTheDocument();
     });
@@ -149,7 +164,9 @@ describe("CartPage Tests", () => {
 
         axios.get.mockResolvedValueOnce({ data: { clientToken: "mock-token" } });
 
-        render(<CartPage />);
+        await act(async () => {
+            render(<CartPage />);
+        });
 
         await waitFor(() => expect(axios.get).toHaveBeenCalledWith("/api/v1/product/braintree/token"));
     });
@@ -160,12 +177,14 @@ describe("CartPage Tests", () => {
 
         axios.get.mockRejectedValueOnce(new Error("Failed to fetch token"));
 
-        render(<CartPage />);
+        await act(async () => {
+            render(<CartPage />);
+        });
 
         await waitFor(() => expect(screen.queryByTestId("braintree-dropin")).not.toBeInTheDocument());
     });
     
-    test("Calculates total price correctly", () => {
+    test("Calculates total price correctly", async () => {
         const mockCart = [
             { _id: "1", name: "Laptop", price: 10 },
             { _id: "2", name: "Phone", price: 20 },
@@ -173,13 +192,15 @@ describe("CartPage Tests", () => {
         useCart.mockReturnValue([mockCart, setCartMock]);
         useAuth.mockReturnValue([{ user: { name: "Test User" }, token: "12345" }]);     
     
-        render(<CartPage />);
+        await act(async () => {
+            render(<CartPage />);
+        });
     
         expect(screen.getByText((content) => content.includes("Total") && content.includes("$30.00"))).toBeInTheDocument();
 
     });    
 
-    test("Removes item from cart correctly", () => {
+    test("Removes item from cart correctly", async () => {
         const setCartMock = jest.fn();
         
         useCart.mockReturnValue([
@@ -192,7 +213,9 @@ describe("CartPage Tests", () => {
     
         useAuth.mockReturnValue([{ user: { name: "Test User" }, token: "12345" }]);
     
-        render(<CartPage />);
+        await act(async () => {
+            render(<CartPage />);
+        });
     
         expect(screen.getByText("Laptop")).toBeInTheDocument();
         expect(screen.getByText("Phone")).toBeInTheDocument();
@@ -212,19 +235,23 @@ describe("CartPage Tests", () => {
     
         axios.get.mockResolvedValueOnce({ data: { clientToken: "mock-token" } });
     
-        render(<CartPage />);
+        await act(async () => {
+            render(<CartPage />);
+        });
     
         expect(await screen.findByTestId("braintree-dropin")).toBeInTheDocument();
     });
     
 
-    test("Make Payment button disabled when address is missing", () => {
+    test("Make Payment button disabled when address is missing", async () => {
         useCart.mockReturnValue([[{ _id: "1", price: 50 }], jest.fn()]);
         useAuth.mockReturnValue([{ user: { name: "Test User" }, token: "12345", address: "" }]);
     
-        render(<CartPage />);
+        await act(async () => {
+            render(<CartPage />);
+        });
     
-        expect(screen.queryByText("Make Payment")).not.toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Make Payment" })).toBeDisabled();
     });
     
     test("Make Payment button works when conditions are met", async () => {
@@ -239,19 +266,19 @@ describe("CartPage Tests", () => {
     
         axios.post.mockResolvedValueOnce({ data: { success: true } });
     
-        render(<CartPage />);
+        await act(async () => {
+            render(<CartPage />);
+        });
 
         const mockInstance = {
             requestPaymentMethod: jest.fn().mockResolvedValue({ nonce: "fake-nonce" }),
         };
     
         await waitFor(() => {
-            console.log("🔹 Simulating DropIn instance");
             screen.getByTestId("braintree-dropin").onInstance?.(mockInstance);
         });
 
         await waitFor(() => {
-            console.log("✅ Button should be visible");
             expect(screen.getByText("Make Payment")).toBeInTheDocument();
         });
     });
