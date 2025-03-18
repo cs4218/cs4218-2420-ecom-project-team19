@@ -23,7 +23,6 @@ test.describe("UI - Add to Cart Flow", () => {
   });
 
 // add to cart from home page
-// additional notes: not sure how to enable the flow for add to cart from product page
 test('login -> add to cart -> inspect cart -> remove item -> logout', async ({ page }) => {
     // wait for homepage
     await page.goto('http://localhost:3000/');
@@ -38,7 +37,7 @@ test('login -> add to cart -> inspect cart -> remove item -> logout', async ({ p
 
     // navigate to cart
     await page.getByRole('link', { name: 'Cart' }).click();
-    await page.goto('http://localhost:3000/cart');
+    await page.waitForURL("http://localhost:3000/cart");
 
     // inspect all items added to cart
     await expect(page.locator('h1')).toContainText('Hello user testsYou Have 3 items in your cart');
@@ -100,7 +99,7 @@ test('login -> filter -> add to cart -> inspect cart -> logout', async ({ page }
 
     // navigate to cart
     await page.getByRole('link', { name: 'Cart' }).click();
-    await page.goto('http://localhost:3000/cart');
+    await page.waitForURL("http://localhost:3000/cart");
 
     // inspect all items added to cart
     await expect(page.locator('h1')).toContainText('Hello user testsYou Have 1 items in your cart');
@@ -113,5 +112,59 @@ test('login -> filter -> add to cart -> inspect cart -> logout', async ({ page }
 
     // check total
     await expect(page.getByRole('main')).toContainText('Total : $4.99');
+    });
+
+    // add to cart from product details
+    test('login -> product details add to cart -> similar products add to cart -> inspect cart -> remove item -> logout', async ({ page }) => {
+      await page.goto('http://localhost:3000/');
+
+      // find novel and navigate to product details
+      await page.getByRole('heading', { name: 'Novel' }).click();
+      await page.locator('.card-body > button').first().click();
+      await expect(page.locator('h1')).toContainText('Product Details');
+      await expect(page.getByRole('main')).toContainText('Name : Novel');
+      await expect(page.getByRole('main')).toContainText('Description : A bestselling novel');
+      await expect(page.getByRole('main')).toContainText('Price :$15.00');
+      await expect(page.getByRole('main')).toContainText('Category : Book');
+      await expect(page.getByRole('img', { name: 'Novel' })).toBeVisible();
+      await page.getByRole('button', { name: 'ADD TO CART' }).first().click();
+      await page.locator('div').filter({ hasText: /^Item Added to Cart$/ }).nth(2).click();
+
+      // add similar product to cart
+      await expect(page.getByRole('main')).toContainText('Similar Products ➡️');
+      await expect(page.getByRole('main')).toContainText('The Law of Contract in Singapore');
+      await page.getByRole('heading', { name: '$54.99' }).click();
+      await expect(page.getByRole('main')).toContainText('$54.99');
+      await expect(page.getByRole('main')).toContainText('A bestselling book in Singapore...');
+      await page.getByRole('button', { name: 'ADD TO CART' }).nth(2).click();
+      await page.locator('div').filter({ hasText: /^Item Added to Cart$/ }).nth(2).click();
+
+      // go to cart
+      await page.getByRole('link', { name: 'Cart' }).click();
+      await page.waitForURL("http://localhost:3000/cart");
+
+      // check correct number of items
+      await expect(page.locator('h1')).toContainText('Hello user testsYou Have 2 items in your cart');
+      await expect(page.locator('h1')).toContainText('You Have 2 items in your cart');
+
+      // check product 1
+      await expect(page.getByRole('main')).toContainText('Novel');
+      await expect(page.getByRole('main')).toContainText('A bestselling novel');
+      await expect(page.getByRole('main')).toContainText('Price : 15');
+      await expect(page.getByRole('img', { name: 'Novel' })).toBeVisible();
+
+      // check product 2
+      await expect(page.getByRole('main')).toContainText('The Law of Contract in Singapore');
+      await expect(page.getByRole('main')).toContainText('A bestselling book in Singapor');
+      await expect(page.getByRole('main')).toContainText('Price : 54.99');
+      await expect(page.getByRole('img', { name: 'The Law of Contract in' })).toBeVisible();
+
+      // check total
+      await expect(page.locator('h2')).toContainText('Cart Summary');
+      await expect(page.getByRole('main')).toContainText('Total : $69.99');
+
+      // remove from cart
+      await page.locator('div').filter({ hasText: /^NovelA bestselling novelPrice : 15Remove$/ }).getByRole('button').click();
+      await page.getByRole('button', { name: 'Remove' }).click();
     });
 });
