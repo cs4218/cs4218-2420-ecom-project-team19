@@ -88,4 +88,42 @@ describe("Product Controller Integration Tests", () => {
     expect(res.status).toBe(500);
     expect(res.body.error).toBe("Name is Required");
   });
+
+  it("should update a product successfully", async () => {
+    const imagePath = path.join(__dirname, "../test-photos/test-image.png");
+  
+    // Step 1: Create the product first
+    const createRes = await request(app)
+      .post("/api/v1/product/create-product")
+      .set("Authorization", adminToken)
+      .field("name", "Old Product")
+      .field("description", "Old description")
+      .field("price", "50.00")
+      .field("category", category._id.toString())
+      .field("quantity", "5")
+      .field("shipping", "true")
+      .attach("photo", imagePath);
+  
+    const productId = createRes.body.products._id;
+  
+    // Step 2: Update the product
+    const updateRes = await request(app)
+      .put(`/api/v1/product/update-product/${productId}`)
+      .set("Authorization", adminToken)
+      .field("name", "Updated Product")
+      .field("description", "Updated description")
+      .field("price", "75.00")
+      .field("category", category._id.toString())
+      .field("quantity", "8")
+      .field("shipping", "false")
+      .attach("photo", imagePath); // Optional: include updated image
+  
+    // Step 3: Assertions
+    expect(updateRes.status).toBe(201);
+    expect(updateRes.body.success).toBe(true);
+    expect(updateRes.body.message).toBe("Product Updated Successfully");
+    expect(updateRes.body.products.name).toBe("Updated Product");
+    expect(updateRes.body.products.description).toBe("Updated description");
+    expect(updateRes.body.products.price).toBe(75.00);
+  });
 });
