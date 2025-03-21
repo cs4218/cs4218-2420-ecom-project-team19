@@ -11,7 +11,7 @@
     "sonarqube": "sonar-scanner",
     "test": "npm run test:frontend & npm run test:backend",
     "test:bhanukaut": "jest client/src/components/UserMenu.test.js client/src/components/Routes/Private.test.js controllers/productController.test.js models/productModel.test.js models/userModel.test.js client/src/pages/user/Dashboard.test.js --coverage --collectCoverageFrom client/src/components/UserMenu.js --collectCoverageFrom client/src/components/Routes/Private.js --collectCoverageFrom controllers/productController.js --collectCoverageFrom models/productModel.js --collectCoverageFrom models/userModel.js --collectCoverageFrom client/src/pages/user/Dashboard.js --coverageDirectory=coverage",
-    "test:bhanukait": "jest integration-tests/productAddUpdateDeletePay.integration.test.js --coverage --collectCoverageFrom integration-tests/productAddUpdateDeletePay.integration.test.js --coverageDirectory=coverage", 
+    "test:bhanukait": "cross-env NODE_ENV=test jest integration-tests/productAddUpdateDeletePay.integration.test.js --coverage --collectCoverageFrom=[\"controllers/**/*.js\"] --coverageDirectory=coverage",
     "test:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.config.js",
     "test:backend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js"
   },
@@ -46,15 +46,19 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20.12.12",
     "babel-jest": "^29.7.0",
+    "cross-env": "^7.0.3",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jsdom": "^26.0.0",
     "mongodb-memory-server": "^10.1.4",
     "mongoose": "^8.12.1",
-    "sonarqube-scanner": "^3.3.0"
+    "sonarqube-scanner": "^3.3.0",
+    "supertest": "^7.1.0"
   },
   "jest": {
-    "setupFiles": ["dotenv/config"]
+    "setupFiles": [
+      "dotenv/config"
+    ]
   }
 }

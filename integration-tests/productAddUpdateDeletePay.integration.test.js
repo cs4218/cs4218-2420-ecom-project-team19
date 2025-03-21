@@ -5,7 +5,7 @@ import JWT from "jsonwebtoken";
 import fs from "fs";
 import path from "path";
 
-import app from "../server";
+import app from "../app";
 import userModel from "../models/userModel";
 import categoryModel from "../models/categoryModel";
 import productModel from "../models/productModel";
@@ -156,5 +156,52 @@ describe("Product Controller Integration Tests", () => {
     // Step 3: Ensure product is no longer in DB
     const productInDb = await productModel.findById(productId);
     expect(productInDb).toBeNull();
+  });
+  
+  it("should complete a payment successfully", async () => {
+    // Step 1: Create a product to use in cart
+    const imagePath = path.join(__dirname, "../test-photos/test-image.png");
+  
+    const createRes = await request(app)
+      .post("/api/v1/product/create-product")
+      .set("Authorization", adminToken)
+      .field("name", "Payable Product")
+      .field("description", "Product for payment test")
+      .field("price", "199.99")
+      .field("category", category._id.toString())
+      .field("quantity", "2")
+      .field("shipping", "true")
+      .attach("photo", imagePath);
+  
+    const product = createRes.body.products;
+  
+    // Step 2: Fetch Braintree token
+    const tokenRes = await request(app)
+      .get("/api/v1/product/braintree/token")
+      .set("Authorization", adminToken);
+  
+    expect(tokenRes.status).toBe(200);
+    const clientToken = tokenRes.body.clientToken;
+    expect(clientToken).toBeDefined();
+  
+    // Step 3: Simulate payment
+    const fakeNonce = "fake-valid-nonce"; // Use "fake-valid-nonce" for Braintree sandbox testing
+  
+    const paymentRes = await request(app)
+      .post("/api/v1/product/braintree/payment")
+      .set("Authorization", adminToken)
+      .send({
+        nonce: fakeNonce,
+        cart: [
+          {
+            _id: product._id,
+            name: product.name,
+            price: product.price,
+          },
+        ],
+      });
+  
+    expect(paymentRes.status).toBe(200);
+    expect(paymentRes.body.ok).toBe(true);
   });  
 });
