@@ -126,4 +126,35 @@ describe("Product Controller Integration Tests", () => {
     expect(updateRes.body.products.description).toBe("Updated description");
     expect(updateRes.body.products.price).toBe(75.00);
   });
+
+  it("should delete a product successfully", async () => {
+    const imagePath = path.join(__dirname, "../test-photos/test-image.png");
+  
+    // Step 1: Create the product
+    const createRes = await request(app)
+      .post("/api/v1/product/create-product")
+      .set("Authorization", adminToken)
+      .field("name", "Product To Delete")
+      .field("description", "Will be deleted")
+      .field("price", "49.99")
+      .field("category", category._id.toString())
+      .field("quantity", "3")
+      .field("shipping", "true")
+      .attach("photo", imagePath);
+  
+    const productId = createRes.body.products._id;
+  
+    // Step 2: Delete the product
+    const deleteRes = await request(app)
+      .delete(`/api/v1/product/delete-product/${productId}`)
+      .set("Authorization", adminToken);
+  
+    expect(deleteRes.status).toBe(200);
+    expect(deleteRes.body.success).toBe(true);
+    expect(deleteRes.body.message).toBe("Product Deleted successfully");
+  
+    // Step 3: Ensure product is no longer in DB
+    const productInDb = await productModel.findById(productId);
+    expect(productInDb).toBeNull();
+  });  
 });
