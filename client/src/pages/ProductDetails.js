@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Layout from "./../components/Layout";
 import axios from "axios";
+import toast from "react-hot-toast";
 import { useParams, useNavigate } from "react-router-dom";
+import { useCart } from "../context/cart";
 import "../styles/ProductDetailsStyles.css";
 
 const ProductDetails = () => {
@@ -9,6 +11,7 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState({});
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [cart, setCart] = useCart();
 
   //initalp details
   useEffect(() => {
@@ -67,7 +70,23 @@ const ProductDetails = () => {
               : "N/A"}
           </h6>
           <h6>Category : {product?.category?.name || "N/A"}</h6>
-          <button className="btn btn-secondary ms-1">ADD TO CART</button>
+          <button
+            className="btn btn-dark ms-1"
+            onClick={() => {
+              setCart((prevCart) => {
+                const updatedCart = [...prevCart, product];
+                localStorage.setItem("cart", JSON.stringify(updatedCart));
+    
+                // Show toast only if it's not already in the cart
+                if (!prevCart.some((item) => item._id === product._id)) {
+                  toast.success("Item Added to Cart", { id: `cart-toast-${product._id}` });
+                }
+                return updatedCart;
+              });
+            }}
+          >
+            ADD TO CART
+          </button>
         </div>
       </div>
       <hr />

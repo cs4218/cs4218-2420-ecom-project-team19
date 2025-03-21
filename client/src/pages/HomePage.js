@@ -7,6 +7,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import Layout from "./../components/Layout";
 import { AiOutlineReload } from "react-icons/ai";
+import { flushSync } from "react-dom";
 import "../styles/Homepages.css";
 
 const HomePage = () => {
@@ -37,18 +38,24 @@ const HomePage = () => {
     getTotal();
   }, []);
 
-  // Get products
   const getAllProducts = async () => {
     try {
-      setLoading(true);
-      const { data } = await axios.get(`/api/v1/product/product-list/${page}`);
-      setLoading(false);
-      setProducts(data.products);
+        setLoading(true);
+        const response = await axios.get(`/api/v1/product/product-list/${page}`);
+
+        if (!response || !response.data) {
+            throw new Error("Invalid API response");
+        }
+
+        setProducts(response.data.products || []);
     } catch (error) {
-      setLoading(false);
-      console.log("Error fetching products:", error);
+        console.error("Error fetching products:", error);
+        setProducts([]);
+    } finally {
+        setLoading(false);
     }
-  };
+};
+
 
   // Get total count
   const getTotal = async () => {
@@ -86,7 +93,9 @@ const HomePage = () => {
     } else {
       all = all.filter((c) => c !== id);
     }
-    setChecked(all);
+    flushSync(() => {
+      setChecked(all); // Force React to update immediately
+    });
   };
 
   useEffect(() => {
@@ -94,8 +103,14 @@ const HomePage = () => {
   }, [checked.length, radio.length]);
 
   useEffect(() => {
-    if (checked.length || radio.length) filterProduct();
-  }, [checked, radio]);
+    console.log("Fetching Products with Filters:", { checked, radio });
+    if (!checked.length && !radio.length) {
+      getAllProducts();  // Only fetch all products when no filters are applied
+    } else {
+      filterProduct(); // Fetch filtered products
+    }
+  }, [checked, radio]); // 🔹 Ensure this runs every time `checked` or `radio` changes
+
 
   // Get filtered products
   const filterProduct = async () => {
@@ -157,7 +172,7 @@ const HomePage = () => {
         <div className="col-md-9 ">
           <h1 className="text-center">All Products</h1>
           <div className="d-flex flex-wrap">
-            {products.length === 0 ? (
+            {!products || products.length === 0 ? (
               <h5 data-testid="no-products-message">No Products Found</h5>
             ) : (
               products.map((p, index) => (
@@ -186,6 +201,17 @@ const HomePage = () => {
             )}
           </div>
         </div>
+        {products.length < total && (
+          <div className="text-center mt-4">
+            <button
+              className="btn btn-warning"
+              onClick={() => setPage((prev) => prev + 1)}
+              data-testid="load-more-button"
+            >
+              Load More
+            </button>
+          </div>
+        )}
       </div>
     </Layout>
   );

@@ -1,3 +1,4 @@
+/* eslint-disable testing-library/no-unnecessary-act */
 /* eslint-disable testing-library/no-wait-for-multiple-assertions */
 import React from "react";
 import { render, screen, waitFor, cleanup, fireEvent, act } from "@testing-library/react";
