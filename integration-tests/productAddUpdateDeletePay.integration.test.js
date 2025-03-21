@@ -1,6 +1,6 @@
 import request from "supertest";
 import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
+// import { MongoMemoryServer } from "mongodb-memory-server";
 import JWT from "jsonwebtoken";
 import fs from "fs";
 import path from "path";
@@ -10,26 +10,27 @@ import userModel from "../models/userModel";
 import categoryModel from "../models/categoryModel";
 import productModel from "../models/productModel";
 
-jest.mock("../config/db.js", () => jest.fn());
+// jest.mock("../config/db.js", () => jest.fn());
 
 describe("Product Controller Integration Tests", () => {
-  let mongoServer;
+  // let mongoServer;
   let admin;
   let adminToken;
   let category;
 
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const uri = mongoServer.getUri();
-    await mongoose.connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    // mongoServer = await MongoMemoryServer.create();
+    // const uri = mongoServer.getUri();
+    // await mongoose.connect(uri, {
+    //   useNewUrlParser: true,
+    //  useUnifiedTopology: true,
+    // });
+    await mongoose.connect(process.env.MONGO_URL);
   });
 
   afterAll(async () => {
     await mongoose.disconnect();
-    await mongoServer.stop();
+    // await mongoServer.stop();
   });
 
   beforeEach(async () => {
@@ -157,7 +158,7 @@ describe("Product Controller Integration Tests", () => {
     const productInDb = await productModel.findById(productId);
     expect(productInDb).toBeNull();
   });
-  
+
   it("should complete a payment successfully", async () => {
     // Step 1: Create a product to use in cart
     const imagePath = path.join(__dirname, "../test-photos/test-image.png");
