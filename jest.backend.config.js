@@ -10,7 +10,8 @@ export default {
     "<rootDir>/middlewares/*.test.js",
     "<rootDir>/controllers/*.test.js",
     "<rootDir>/models/*.test.js",
-    "<rootDir>/config/*test.js"
+    "<rootDir>/config/*.test.js",
+    "<rootDir>/integration-tests/*.test.js"
   ],
 
   // jest code coverage
@@ -34,4 +35,6 @@ export default {
     coverageDirectory: "coverage/backend",
   
     coverageReporters: ["json", "lcov", "text", "clover"],
+
+    setupFilesAfterEnv: ["<rootDir>/jest.setup.js"]
 };

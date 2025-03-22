@@ -22,7 +22,9 @@ export default {
     "<rootDir>/client/src/context/*.test.js",
     "<rootDir>/client/src/hooks/*.test.js", 
     "<rootDir>/client/src/pages/**/*.test.js",
-    "<rootDir>/client/src/pages/*.test.js"],
+    "<rootDir>/client/src/pages/*.test.js",
+    "<rootDir>/integration-tests/*.test.js"
+  ],
 
   // jest code coverage
   collectCoverage: true,
@@ -46,4 +48,6 @@ export default {
   coverageDirectory: "coverage/frontend",
 
   coverageReporters: ["json", "lcov", "text", "clover"],
+
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"]
 };
