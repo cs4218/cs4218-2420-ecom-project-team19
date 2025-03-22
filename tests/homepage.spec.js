@@ -7,7 +7,6 @@ test.beforeEach(async ({ page }) => {
 
 test.describe('Homepage flows for UI tests', () => {
     test('Add 2 items to cart, then remove 1 from the cart', async ({ page }) => {
-        test.setTimeout(30000);
         const shirtCard = page.getByText("NUS T-shirt").locator("..").locator("..");
         const bookCard = page.getByText("NUS T-shirt").locator("..").locator("..");
 
@@ -31,7 +30,6 @@ test.describe('Homepage flows for UI tests', () => {
     });
 
     test('Filter by 1 price range', async ({ page }) => {
-        test.setTimeout(30000);
         await expect(page.getByRole("heading", { name: "Laptop" })).toBeVisible({ timeout: 15000 });
         await expect(page.getByRole("heading", { name: "Novel" })).toBeVisible({ timeout: 15000 });
 
@@ -42,7 +40,6 @@ test.describe('Homepage flows for UI tests', () => {
     });
 
     test('Check all category filters individually', async ({ page }) => {
-        test.setTimeout(30000);
         await expect(page.getByRole("heading", { name: "Laptop" })).toBeVisible({ timeout: 15000 });
         await expect(page.getByRole("heading", { name: "Novel" })).toBeVisible({ timeout: 15000 });
         await expect(page.getByRole("heading", { name: "NUS T-shirt" })).toBeVisible({ timeout: 15000 });
@@ -85,7 +82,6 @@ test.describe('Homepage flows for UI tests', () => {
     });
 
     test('Select multiple category filters at the same time', async ({ page }) => {
-        test.setTimeout(30000);
         await expect(page.getByRole("heading", { name: "Laptop" })).toBeVisible({ timeout: 15000 });
         await expect(page.getByRole("heading", { name: "Novel" })).toBeVisible({ timeout: 15000 });
         await expect(page.getByRole("heading", { name: "NUS T-shirt" })).toBeVisible({ timeout: 15000 });
@@ -112,7 +108,6 @@ test.describe('Homepage flows for UI tests', () => {
     });
 
     test('Navigate to product details page and back to home', async ({ page }) => {
-        test.setTimeout(30000);
         await expect(page.getByRole("heading", { name: "Laptop" })).toBeVisible({ timeout: 15000 });
         await expect(page.getByRole("heading", { name: "Novel" })).toBeVisible({ timeout: 15000 });
         await expect(page.getByRole("heading", { name: "NUS T-shirt" })).toBeVisible({ timeout: 15000 });
