@@ -24,7 +24,7 @@
     "concurrently": "^8.2.2",
     "cors": "^2.8.5",
     "date-fns": "^3.3.1",
-    "dotenv": "^16.4.1",
+    "dotenv": "^16.4.7",
     "express": "^4.18.2",
     "express-formidable": "^1.2.0",
     "jsonwebtoken": "^9.0.2",
@@ -51,6 +51,7 @@
     "jsdom": "^26.0.0",
     "mongodb-memory-server": "^10.1.4",
     "mongoose": "^8.12.1",
-    "sonarqube-scanner": "^3.3.0"
+    "sonarqube-scanner": "^3.3.0",
+    "supertest": "^7.1.0"
   }
 }

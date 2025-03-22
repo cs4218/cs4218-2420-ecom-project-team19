@@ -43,6 +43,16 @@ test.describe("Given Create Category", () => {
         const table = page.locator('table');
         await expect(table.locator('text=Same Category')).toHaveCount(1);
     });
+
+    /*
+    test('should not allow me to add empty categories', async ({ page }) => {
+        await page.getByPlaceholder('Enter new category').fill('');
+        await page.getByRole('button', { name: 'Submit' }).click();
+
+        const table = page.locator('table');
+        expect(table.locator('text=""')).toHaveCount(0);
+    });
+    */
 });
 
 test.describe("Given Edit Category", () => {
