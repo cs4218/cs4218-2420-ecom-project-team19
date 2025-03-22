@@ -34,5 +34,6 @@ test.describe("UI - Payment", () => {
         await frameCVV.getByRole('textbox', { name: 'CVV' }).fill('490');
 
         await page.getByRole('button', { name: 'Make Payment' }).click();
+        await expect(page.getByRole('heading', { name: 'All Orders'})).toBeVisible();
     });
 });
