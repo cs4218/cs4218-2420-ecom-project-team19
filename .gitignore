@@ -10,3 +10,4 @@ coverage.lcov
 lcov-report/
 .env
 .scannerwork/report-task.txt
+sonar-project.properties

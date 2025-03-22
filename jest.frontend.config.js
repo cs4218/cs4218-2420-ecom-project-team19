@@ -42,4 +42,8 @@ export default {
       lines: 90,
     },
   },
+
+  coverageDirectory: "coverage/frontend",
+
+  coverageReporters: ["json", "lcov", "text", "clover"],
 };
