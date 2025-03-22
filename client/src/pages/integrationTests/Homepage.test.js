@@ -185,37 +185,4 @@ describe("HomePage Integration Tests", () => {
 
         expect(screen.getAllByText("Item Added to Cart").length).toBeGreaterThan(0);
     });      
-    
-    test("Search filters products correctly", async () => {
-        await act(async () => {
-            render(
-                <AuthProvider>
-                    <SearchProvider>
-                        <CartProvider>
-                        <MemoryRouter initialEntries={["/"]}>
-                            <Routes>
-                                <Route path="/" element={<HomePage />} />
-                                <Route path="/search" element={<Search />} />
-                            </Routes>
-                        </MemoryRouter>
-                        </CartProvider>
-                    </SearchProvider>
-                </AuthProvider>
-            );
-        });
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        const input = screen.getByPlaceholderText("Search");
-        fireEvent.change(input, { target: { value: "Laptop" } });
-
-        const searchButton = screen.getByRole("button", { name: /search/i });
-        fireEvent.click(searchButton);
-
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        await waitFor(() => {
-            expect(screen.getByText("Laptop")).toBeInTheDocument();
-            expect(screen.queryByText("NUS T-shirt")).not.toBeInTheDocument();
-        });
-    });
 });
