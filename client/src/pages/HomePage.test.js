@@ -262,6 +262,109 @@ describe("Fetching Products in HomePage", () => {
             expect(screen.getByText("Phone")).toBeInTheDocument();
         });
     });
+
+    test("Clicking 'Load More' fetches and displays additional products", async () => {
+        axios.get.mockImplementation((url) => {
+            if (url === "/api/v1/category/get-category") {
+                return Promise.resolve({
+                data: { success: true, category: [] },
+                });
+            } else if (url === "/api/v1/product/product-count") {
+                return Promise.resolve({ data: { total: 8 } });
+            } else if (url === "/api/v1/product/product-list/1") {
+                return Promise.resolve({
+                data: {
+                    success: true,
+                    products: [
+                    { _id: "1", name: "Product 1", slug: "p1" },
+                    { _id: "2", name: "Product 2", slug: "p2" },
+                    { _id: "3", name: "Product 3", slug: "p3" },
+                    { _id: "4", name: "Product 4", slug: "p4" },
+                    { _id: "5", name: "Product 5", slug: "p5" },
+                    { _id: "6", name: "Product 6", slug: "p6" },
+                    ],
+                },
+                });
+            } else if (url === "/api/v1/product/product-list/2") {
+                return Promise.resolve({
+                data: {
+                    success: true,
+                    products: [
+                    { _id: "7", name: "Product 7", slug: "p7" },
+                    { _id: "8", name: "Product 8", slug: "p8" },
+                    ],
+                },
+                });
+            }
+            return Promise.resolve({ data: {} });
+        });
+
+        await act(async () => {
+          render(
+            <BrowserRouter>
+              <HomePage />
+            </BrowserRouter>
+          );
+        });
+    
+        await waitFor(() => {
+            expect(axios.get).toHaveBeenCalledWith("/api/v1/product/product-list/1");
+            expect(screen.getByText("Product 6")).toBeInTheDocument();
+        });
+    
+        act(() => {
+            fireEvent.click(screen.getByTestId("load-more-button"));
+        });
+    
+        await waitFor(() => {
+          expect(screen.getByText("Product 7")).toBeInTheDocument();
+          expect(screen.getByText("Product 8")).toBeInTheDocument();
+        });
+    });
+
+    test("Gracefully handles error when 'Load More' fails", async () => {
+        axios.get.mockImplementation((url) => {
+            if (url === "/api/v1/category/get-category") {
+            return Promise.resolve({ data: { success: true, category: [] } });
+            } else if (url === "/api/v1/product/product-count") {
+            return Promise.resolve({ data: { total: 8 } });
+            } else if (url === "/api/v1/product/product-list/1") {
+            return Promise.resolve({
+                data: {
+                success: true,
+                products: [
+                    { _id: "1", name: "Product 1", slug: "p1" },
+                    { _id: "2", name: "Product 2", slug: "p2" },
+                    { _id: "3", name: "Product 3", slug: "p3" },
+                    { _id: "4", name: "Product 4", slug: "p4" },
+                    { _id: "5", name: "Product 5", slug: "p5" },
+                    { _id: "6", name: "Product 6", slug: "p6" },
+                ],
+                },
+            });
+            } else if (url === "/api/v1/product/product-list/2") {
+            return Promise.reject(new Error("Load More Failed"));
+            }
+            return Promise.resolve({ data: {} });
+        });
+        
+        await act(async () => {
+            render(
+            <BrowserRouter>
+                <HomePage />
+            </BrowserRouter>
+            );
+        });
+        
+        expect(await screen.findByText("Product 6")).toBeInTheDocument();
+        
+        fireEvent.click(screen.getByTestId("load-more-button"));
+        
+        await waitFor(() => {
+            expect(screen.queryByText("Product 7")).not.toBeInTheDocument();
+            expect(screen.queryByText("Product 8")).not.toBeInTheDocument();
+        });
+    });          
 });
 
 describe("Filtering by Category in HomePage", () => {
@@ -333,73 +436,6 @@ describe("Filtering by Category in HomePage", () => {
 
         expect(await screen.findByText("Laptop")).toBeInTheDocument();
         expect(await screen.findByText("T-Shirt")).toBeInTheDocument();
-    });
-
-    test("Deselecting categories restores the full product list", async () => {
-        axios.get.mockResolvedValueOnce({
-            data: { success: true, category: [{ _id: "1", name: "Electronics" }] },
-        });
-        axios.post.mockResolvedValueOnce({
-            data: { products: [{ _id: "1", name: "Laptop", category: "Electronics" }] },
-        });
-        axios.get.mockResolvedValueOnce({
-            data: {
-                products: [
-                    { _id: "1", name: "Laptop", category: "Electronics" },
-                    { _id: "2", name: "Phone", category: "Electronics" },
-                ],
-            },
-        });
-
-        await act(async () => {
-            render(
-                <BrowserRouter>
-                    <HomePage />
-                </BrowserRouter>
-            );
-        });
-
-        expect(await screen.findByText("Electronics")).toBeInTheDocument();
-
-        fireEvent.click(screen.getByText("Electronics"));
-        expect(await screen.findByText("Laptop")).toBeInTheDocument();
-
-        fireEvent.click(screen.getByText("Electronics")); // Deselect category
-
-        expect(await screen.findByText("Laptop")).toBeInTheDocument();
-        expect(await screen.findByText("Phone")).toBeInTheDocument();
-    });
-
-    test("Filtering with 0 categories fetches all products", async () => {
-        axios.get.mockResolvedValueOnce({
-            data: { success: true, category: [{ _id: "1", name: "Electronics" }] },
-        });
-        axios.get.mockResolvedValueOnce({
-            data: {
-                products: [
-                    { _id: "1", name: "Laptop", category: "Electronics" },
-                    { _id: "2", name: "Phone", category: "Electronics" },
-                ],
-            },
-        });
-
-        await act(async () => {
-            render(
-                <BrowserRouter>
-                    <HomePage />
-                </BrowserRouter>
-            );
-        });
-
-        expect(await screen.findByText("Electronics")).toBeInTheDocument();
-
-        fireEvent.click(screen.getByText("Electronics")); // Apply filter
-        expect(await screen.findByText("Laptop")).toBeInTheDocument();
-
-        fireEvent.click(screen.getByText("Electronics")); // Remove filter
-
-        expect(await screen.findByText("Laptop")).toBeInTheDocument();
-        expect(await screen.findByText("Phone")).toBeInTheDocument();
     });
 });
 

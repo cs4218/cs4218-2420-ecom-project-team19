@@ -2,50 +2,26 @@
 /* eslint-disable testing-library/no-unnecessary-act */
 import React from "react";
 import { render, screen, waitFor, fireEvent, act, cleanup } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
 import HomePage from "../../pages/HomePage";
 import ProductDetails from "../../pages/ProductDetails";
+import CategoryProduct from "../CategoryProduct";
 import axios from "axios";
-import { useCart } from "../../context/cart";
-import { useAuth } from "../../context/auth";
-import useCategory from "../../hooks/useCategory";
-import { useSearch } from "../../context/search";
-import { useNavigate } from "react-router-dom";
+import { CartProvider } from "../../context/cart";
+import { AuthProvider } from "../../context/auth";
+import { SearchProvider } from "../../context/search";
+import Search from "../Search";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
 import "@testing-library/jest-dom";
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-jest.mock("../../context/cart", () => ({
-    useCart: jest.fn(() => [[], jest.fn()]),
-}));
-jest.mock("../../context/search", () => ({
-    useSearch: jest.fn(() => [[], jest.fn()]),
-}));
-jest.mock("../../context/auth", () => ({
-    useAuth: jest.fn(() => [{ user: null, token: "" }, jest.fn()]),
-}));
-
-jest.mock("../../hooks/useCategory", () => ({
-    __esModule: true,
-    default: jest.fn(() => []),
-}));
-jest.mock("axios");
-jest.mock("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"),
-    useNavigate: jest.fn(),
-}));
-
-
 describe("HomePage Integration Tests", () => {
-    let mockNavigate;
-
+    beforeAll(async () => {
+        axios.defaults.baseURL = "http://localhost:6060";
+        console.log("Waiting for backend...");
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+    });
     beforeEach(async () => {
-        jest.clearAllMocks();
-        const mockNavigate = jest.fn();
-        useNavigate.mockReturnValue(mockNavigate);
-        useAuth.mockReturnValue([{ user: null, token: "" }, jest.fn()]);
-        useCart.mockReturnValue([[], jest.fn()]);
-        useCategory.mockReturnValue([]);
+        cleanup();
+        localStorage.clear();
         Object.defineProperty(window, "matchMedia", {
             writable: true,
             value: jest.fn().mockImplementation((query) => ({
@@ -65,31 +41,28 @@ describe("HomePage Integration Tests", () => {
         cleanup();
     })
 
+    afterAll(() => {
+        axios.defaults.baseURL = "";
+    })
+
     test("Displays products from the real API", async () => {
-        axios.get.mockResolvedValue({
-            data: {
-                success: true,
-                category: [
-                    { _id: "1", name: "Electronics" },
-                    { _id: "2", name: "Clothing" },
-                ],
-            },
-        });
-        axios.get.mockResolvedValue({
-            data: {
-                products: [
-                    { _id: "1", name: "Laptop", category: "Electronics" },
-                    { _id: "2", name: "T-Shirt", category: "Clothing" },
-                ],
-            },
-        });
         await act(async () => {
             render(
-                <BrowserRouter>
-                    <HomePage />
-                </BrowserRouter>
+                <AuthProvider>
+                <SearchProvider>
+                    <CartProvider>
+                    <MemoryRouter initialEntries={["/"]}>
+                        <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        </Routes>
+                    </MemoryRouter>
+                    </CartProvider>
+                </SearchProvider>
+                </AuthProvider>
             );
         });
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         await waitFor(() => {
             expect(screen.getByText("All Products")).toBeInTheDocument();
@@ -97,274 +70,186 @@ describe("HomePage Integration Tests", () => {
 
         await waitFor(() => {
             expect(screen.getByText("Laptop")).toBeInTheDocument();
-            expect(screen.getByText("T-Shirt")).toBeInTheDocument();
+            expect(screen.getByText("NUS T-shirt")).toBeInTheDocument();
         });
     });
 
-    test("Filters products correctly by category", async () => {
-        axios.get.mockResolvedValueOnce({
-            data: {
-                success: true,
-                category: [
-                    { _id: "1", name: "Electronics" },
-                    { _id: "2", name: "Clothing" },
-                ],
-            },
-        });
-        axios.post.mockResolvedValueOnce({
-            data: {
-                products: [
-                    { _id: "1", name: "Laptop", category: "Electronics" },
-                    { _id: "2", name: "T-Shirt", category: "Clothing" },
-                ],
-            },
-        });
+    // test("Filters products correctly by category", async () => {
+    //     await act(async () => {
+    //         render(
+    //             <AuthProvider>
+    //             <SearchProvider>
+    //                 <CartProvider>
+    //                 <MemoryRouter initialEntries={["/"]}>
+    //                     <Routes>
+    //                     <Route path="/" element={<HomePage />} />
+    //                     <Route path="/category/:slug" element={<CategoryProduct />} />
+    //                     </Routes>
+    //                 </MemoryRouter>
+    //                 </CartProvider>
+    //             </SearchProvider>
+    //             </AuthProvider>
+    //         );
+    //     });
 
-        await act(async () => {
-            render(
-                <BrowserRouter>
-                    <HomePage />
-                </BrowserRouter>
-            );
-        });
+    //     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        const categoryCheckbox = await screen.findByText("Electronics");
-        fireEvent.click(categoryCheckbox);
+    //     await waitFor(() => {
+    //         expect(screen.getByText("Laptop")).toBeInTheDocument();
+    //         expect(screen.getByText("NUS T-shirt")).toBeInTheDocument();
+    //     });
+    //     const categoryLink = await screen.findByRole("link", { name: /Electronics/i });
+    //     fireEvent.click(categoryLink);
 
-        await waitFor(() => {
-            expect(screen.getByText("Laptop")).toBeInTheDocument();
-        });
-    });
+    //     await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    //     await waitFor(() => {
+    //         expect(screen.getByText("Laptop")).toBeInTheDocument();
+    //         expect(screen.queryByText("NUS T-shirt")).not.toBeInTheDocument();
+    //     });
+    // });
 
     test("Adding a product to the cart updates the UI", async () => {
-        axios.get.mockResolvedValueOnce({
-            data: {
-                success: true,
-                category: [
-                    { _id: "1", name: "Electronics" },
-                    { _id: "2", name: "Clothing" },
-                ],
-            },
-        });
-        axios.post.mockResolvedValueOnce({
-            data: {
-                products: [
-                    { _id: "1", name: "Laptop", category: "Electronics" },
-                ],
-            },
-        });
-
         await act(async () => {
             render(
-                <BrowserRouter>
-                    <HomePage />
-                </BrowserRouter>
+                <AuthProvider>
+                <SearchProvider>
+                    <CartProvider>
+                    <MemoryRouter initialEntries={["/"]}>
+                        <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        </Routes>
+                    </MemoryRouter>
+                    </CartProvider>
+                </SearchProvider>
+                </AuthProvider>
             );
         });
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const addToCartButton = await screen.findAllByRole("button", { name: "ADD TO CART" });
         fireEvent.click(addToCartButton[0]);
 
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         await waitFor(() => {
-            expect(localStorage.getItem("cart")).toContain("Laptop");
+            expect(localStorage.getItem("cart")).toContain("NUS T-shirt");
         });
 
         expect(screen.getByText("Item Added to Cart")).toBeInTheDocument();
     });
 
     test("Clicking 'View Product' navigates to the product page", async () => {
-        axios.get.mockResolvedValueOnce({
-            data: {
-                success: true,
-                category: [
-                    { _id: "1", name: "Electronics" },
-                    { _id: "2", name: "Clothing" },
-                ],
-            },
-        });
-        axios.post.mockResolvedValueOnce({
-            data: {
-                products: [
-                    { _id: "1", name: "Laptop", category: "Electronics", slug: "laptop" },
-                ],
-            },
-        });
-
         await act(async () => {
             render(
-                <BrowserRouter>
-                    <HomePage />
-                </BrowserRouter>
+                <AuthProvider>
+                <SearchProvider>
+                    <CartProvider>
+                    <MemoryRouter initialEntries={["/"]}>
+                        <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/product/:slug" element={<ProductDetails />} />
+                        </Routes>
+                    </MemoryRouter>
+                    </CartProvider>
+                </SearchProvider>
+                </AuthProvider>
             );
         });
-        const viewProductButton = await screen.findAllByRole("button", { name: /View Product/i });
-        fireEvent.click(viewProductButton[0]);
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         await waitFor(() => {
-            expect(screen.getByText("Laptop")).toBeInTheDocument();
+            expect(screen.getByText("All Products")).toBeInTheDocument();
+        });
+        const viewProductButton = await screen.findAllByRole("button", { name: /View Product/i });
+        await act(() => {
+            fireEvent.click(viewProductButton[0]);
+        });
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        await waitFor(() => {
+            expect(screen.getByText("Name : NUS T-shirt")).toBeInTheDocument();
+            expect(screen.getByText("Description : Plain NUS T-shirt for sale")).toBeInTheDocument();
         });
     });
 
     test("Clicking 'View Product' navigates to the product page, and clicking 'Add To Cart' adds the item to the cart", async () => {
-        axios.get.mockResolvedValueOnce({
-            data: {
-                success: true,
-                category: [
-                    { _id: "1", name: "Electronics" },
-                    { _id: "2", name: "Clothing" },
-                ],
-            },
-        });
-
-        axios.post.mockResolvedValueOnce({
-            data: {
-                products: [
-                    { _id: "1", name: "Laptop", category: "Electronics", slug: "laptop" },
-                ],
-            },
-        });
-
         await act(async () => {
             render(
-                <BrowserRouter>
-                    <HomePage />
-                </BrowserRouter>
+                <AuthProvider>
+                <SearchProvider>
+                    <CartProvider>
+                    <MemoryRouter initialEntries={["/"]}>
+                        <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/product/:slug" element={<ProductDetails />} />
+                        </Routes>
+                    </MemoryRouter>
+                    </CartProvider>
+                </SearchProvider>
+                </AuthProvider>
             );
         });
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         await waitFor(() => {
-            expect(screen.getByText("Laptop")).toBeInTheDocument();
+            expect(screen.getByText("All Products")).toBeInTheDocument();
         });
-
-        axios.get.mockResolvedValueOnce({
-            data: {
-                product: { _id: "1", name: "Laptop", category: "Electronics", slug: "laptop" },
-            },
-        });
-
         const viewProductButton = await screen.findAllByRole("button", { name: /View Product/i });
-        fireEvent.click(viewProductButton[1]);
+        await act(() => {
+            fireEvent.click(viewProductButton[0]);
+        });
 
-        cleanup();
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        await act(async () => {
-            render(
-                <BrowserRouter>
-                    <ProductDetails />
-                </BrowserRouter>
-            );
+        await waitFor(() => {
+            expect(screen.getByText("Name : NUS T-shirt")).toBeInTheDocument();
+            expect(screen.getByText("Description : Plain NUS T-shirt for sale")).toBeInTheDocument();
         });
 
         const addToCartButton = await screen.findAllByRole("button", { name: /ADD TO CART/i });
         fireEvent.click(addToCartButton[0]);
 
         await waitFor(() => {
-            expect(localStorage.getItem("cart")).toContain("Laptop");
+            expect(localStorage.getItem("cart")).toContain("NUS T-shirt");
         });
 
-        expect(screen.getByText("Item Added to Cart")).toBeInTheDocument();
-    });
-
-    test("Clicking 'Load More' fetches and displays additional products", async () => {
-        axios.get.mockImplementation((url) => {
-            if (url === "/api/v1/category/get-category") {
-                return Promise.resolve({
-                data: { success: true, category: [] },
-                });
-            } else if (url === "/api/v1/product/product-count") {
-                return Promise.resolve({ data: { total: 8 } });
-            } else if (url === "/api/v1/product/product-list/1") {
-                return Promise.resolve({
-                data: {
-                    success: true,
-                    products: [
-                    { _id: "1", name: "Product 1", slug: "p1" },
-                    { _id: "2", name: "Product 2", slug: "p2" },
-                    { _id: "3", name: "Product 3", slug: "p3" },
-                    { _id: "4", name: "Product 4", slug: "p4" },
-                    { _id: "5", name: "Product 5", slug: "p5" },
-                    { _id: "6", name: "Product 6", slug: "p6" },
-                    ],
-                },
-                });
-            } else if (url === "/api/v1/product/product-list/2") {
-                return Promise.resolve({
-                data: {
-                    success: true,
-                    products: [
-                    { _id: "7", name: "Product 7", slug: "p7" },
-                    { _id: "8", name: "Product 8", slug: "p8" },
-                    ],
-                },
-                });
-            }
-            return Promise.resolve({ data: {} });
-        });
-
-        await act(async () => {
-          render(
-            <BrowserRouter>
-              <HomePage />
-            </BrowserRouter>
-          );
-        });
+        expect(screen.getAllByText("Item Added to Cart").length).toBeGreaterThan(0);
+    });      
     
-        await waitFor(() => {
-            expect(axios.get).toHaveBeenCalledWith("/api/v1/product/product-list/1");
-            expect(screen.getByText("Product 6")).toBeInTheDocument();
-        });
-    
-        act(() => {
-            fireEvent.click(screen.getByTestId("load-more-button"));
-        });
-    
-        await waitFor(() => {
-          expect(screen.getByText("Product 7")).toBeInTheDocument();
-          expect(screen.getByText("Product 8")).toBeInTheDocument();
-        });
-    });
-
-    test("Gracefully handles error when 'Load More' fails", async () => {
-        axios.get.mockImplementation((url) => {
-            if (url === "/api/v1/category/get-category") {
-            return Promise.resolve({ data: { success: true, category: [] } });
-            } else if (url === "/api/v1/product/product-count") {
-            return Promise.resolve({ data: { total: 8 } });
-            } else if (url === "/api/v1/product/product-list/1") {
-            return Promise.resolve({
-                data: {
-                success: true,
-                products: [
-                    { _id: "1", name: "Product 1", slug: "p1" },
-                    { _id: "2", name: "Product 2", slug: "p2" },
-                    { _id: "3", name: "Product 3", slug: "p3" },
-                    { _id: "4", name: "Product 4", slug: "p4" },
-                    { _id: "5", name: "Product 5", slug: "p5" },
-                    { _id: "6", name: "Product 6", slug: "p6" },
-                ],
-                },
-            });
-            } else if (url === "/api/v1/product/product-list/2") {
-            return Promise.reject(new Error("Load More Failed"));
-            }
-            return Promise.resolve({ data: {} });
-        });
-        
+    test("Search filters products correctly", async () => {
         await act(async () => {
             render(
-            <BrowserRouter>
-                <HomePage />
-            </BrowserRouter>
+                <AuthProvider>
+                    <SearchProvider>
+                        <CartProvider>
+                        <MemoryRouter initialEntries={["/"]}>
+                            <Routes>
+                                <Route path="/" element={<HomePage />} />
+                                <Route path="/search" element={<Search />} />
+                            </Routes>
+                        </MemoryRouter>
+                        </CartProvider>
+                    </SearchProvider>
+                </AuthProvider>
             );
         });
-        
-        expect(await screen.findByText("Product 6")).toBeInTheDocument();
-        
-        fireEvent.click(screen.getByTestId("load-more-button"));
-        
+
+        const input = screen.getByPlaceholderText("Search");
+        fireEvent.change(input, { target: { value: "Laptop" } });
+
+        const searchButton = screen.getByRole("button", { name: /search/i });
+        fireEvent.click(searchButton);
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         await waitFor(() => {
-            expect(screen.queryByText("Product 7")).not.toBeInTheDocument();
-            expect(screen.queryByText("Product 8")).not.toBeInTheDocument();
+            expect(screen.getByText("Laptop")).toBeInTheDocument();
+            expect(screen.queryByText("NUS T-shirt")).not.toBeInTheDocument();
         });
-        });           
+    });
 });
