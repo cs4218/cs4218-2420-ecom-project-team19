@@ -4,7 +4,6 @@ import React from "react";
 import { render, screen, waitFor, fireEvent, act, cleanup } from "@testing-library/react";
 import HomePage from "../../pages/HomePage";
 import ProductDetails from "../../pages/ProductDetails";
-import CategoryProduct from "../CategoryProduct";
 import axios from "axios";
 import { CartProvider } from "../../context/cart";
 import { AuthProvider } from "../../context/auth";
@@ -39,6 +38,7 @@ describe("HomePage Integration Tests", () => {
 
     afterEach(() => {
         cleanup();
+        jest.restoreAllMocks();
     })
 
     afterAll(() => {
@@ -73,41 +73,6 @@ describe("HomePage Integration Tests", () => {
             expect(screen.getByText("NUS T-shirt")).toBeInTheDocument();
         });
     });
-
-    // test("Filters products correctly by category", async () => {
-    //     await act(async () => {
-    //         render(
-    //             <AuthProvider>
-    //             <SearchProvider>
-    //                 <CartProvider>
-    //                 <MemoryRouter initialEntries={["/"]}>
-    //                     <Routes>
-    //                     <Route path="/" element={<HomePage />} />
-    //                     <Route path="/category/:slug" element={<CategoryProduct />} />
-    //                     </Routes>
-    //                 </MemoryRouter>
-    //                 </CartProvider>
-    //             </SearchProvider>
-    //             </AuthProvider>
-    //         );
-    //     });
-
-    //     await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    //     await waitFor(() => {
-    //         expect(screen.getByText("Laptop")).toBeInTheDocument();
-    //         expect(screen.getByText("NUS T-shirt")).toBeInTheDocument();
-    //     });
-    //     const categoryLink = await screen.findByRole("link", { name: /Electronics/i });
-    //     fireEvent.click(categoryLink);
-
-    //     await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    //     await waitFor(() => {
-    //         expect(screen.getByText("Laptop")).toBeInTheDocument();
-    //         expect(screen.queryByText("NUS T-shirt")).not.toBeInTheDocument();
-    //     });
-    // });
 
     test("Adding a product to the cart updates the UI", async () => {
         await act(async () => {
@@ -238,6 +203,7 @@ describe("HomePage Integration Tests", () => {
                 </AuthProvider>
             );
         });
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const input = screen.getByPlaceholderText("Search");
         fireEvent.change(input, { target: { value: "Laptop" } });
