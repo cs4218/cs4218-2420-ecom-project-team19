@@ -25,7 +25,7 @@ export default {
     "<rootDir>/client/src/pages/**/*.test.js",
     "<rootDir>/client/src/pages/*.test.js",
     "<rootDir>/client/src/pages/integrationTests/*.test.js",
-    "<rootDir>/integration-tests/*.test.js"
+    "<rootDir>/client/src/pages/integration-tests/*.test.js"
   ],
 
   // jest code coverage
