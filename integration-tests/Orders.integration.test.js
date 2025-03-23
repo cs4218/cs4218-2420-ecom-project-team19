@@ -219,6 +219,7 @@ describe("Orders Backend Integration Testing", () => {
         buyer: buyer1._id,
         payment: { success: true, transactionId: "txn1" },
       });
+      await new Promise(res => setTimeout(res, 100)); 
       const order2 = await orderModel.create({
         products: [product2._id],
         buyer: buyer2._id,
