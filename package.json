@@ -9,10 +9,9 @@
     "client": "npm start --prefix ./client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "sonarqube": "sonar-scanner",
-    "test": "npm run test:frontend & npm run test:backend",
-    "test:bhanuka": "jest client/src/components/UserMenu.test.js client/src/components/Routes/Private.test.js controllers/productController.test.js models/productModel.test.js models/userModel.test.js client/src/pages/user/Dashboard.test.js --coverage --collectCoverageFrom client/src/components/UserMenu.js --collectCoverageFrom client/src/components/Routes/Private.js --collectCoverageFrom controllers/productController.js --collectCoverageFrom models/productModel.js --collectCoverageFrom models/userModel.js --collectCoverageFrom client/src/pages/user/Dashboard.js --coverageDirectory=coverage",
-    "test:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.config.js",
-    "test:backend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js"
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.config.js --coverage",
+    "test:backend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js --coverage"
   },
   "keywords": [],
   "author": "RP",
@@ -24,7 +23,7 @@
     "concurrently": "^8.2.2",
     "cors": "^2.8.5",
     "date-fns": "^3.3.1",
-    "dotenv": "^16.4.1",
+    "dotenv": "^16.4.7",
     "express": "^4.18.2",
     "express-formidable": "^1.2.0",
     "jsonwebtoken": "^9.0.2",
@@ -39,18 +38,26 @@
     "@babel/core": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-react": "^7.24.1",
-    "@playwright/test": "^1.44.0",
+    "@playwright/test": "^1.51.1",
     "@testing-library/react": "^16.2.0",
     "@testing-library/react-hooks": "^7.0.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20.12.12",
     "babel-jest": "^29.7.0",
+    "cross-env": "^7.0.3",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jsdom": "^26.0.0",
     "mongodb-memory-server": "^10.1.4",
     "mongoose": "^8.12.1",
-    "sonarqube-scanner": "^3.3.0"
+    "sonarqube-scanner": "^3.3.0",
+    "supertest": "^7.1.0",
+    "node-mocks-http": "^1.16.2",
+  },
+  "jest": {
+    "setupFiles": [
+      "dotenv/config"
+    ]
   }
 }

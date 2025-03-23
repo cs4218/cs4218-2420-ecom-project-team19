@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Layout from "./../components/Layout";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useCart } from "../context/cart";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCart } from "../context/cart";
 import "../styles/ProductDetailsStyles.css";
@@ -123,19 +124,17 @@ const ProductDetails = () => {
                   >
                     More Details
                   </button>
-                  {/* <button
-                  className="btn btn-dark ms-1"
-                  onClick={() => {
-                    setCart([...cart, p]);
-                    localStorage.setItem(
-                      "cart",
-                      JSON.stringify([...cart, p])
-                    );
-                    toast.success("Item Added to cart");
-                  }}
-                >
-                  ADD TO CART
-                </button> */}
+                  <button
+                      className="btn btn-dark ms-1"
+                      onClick={() => {
+                        const updatedCart = [...(JSON.parse(localStorage.getItem("cart")) || []), p];
+                        setCart(updatedCart);
+                        localStorage.setItem("cart", JSON.stringify(updatedCart));
+                        toast.success("Item Added to Cart");
+                      }}
+                    >
+                      ADD TO CART
+                    </button>
                 </div>
               </div>
             </div>

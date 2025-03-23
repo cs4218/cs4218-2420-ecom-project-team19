@@ -25,12 +25,13 @@ export default {
     "<rootDir>/client/src/pages/**/*.test.js",
     "<rootDir>/client/src/pages/*.test.js",
     "<rootDir>/client/src/pages/integrationTests/*.test.js",
+    "<rootDir>/integration-tests/*.test.js"
   ],
 
   // jest code coverage
   collectCoverage: true,
   collectCoverageFrom: ["<rootDir>/client/src/components/Form/*.js",
-    "<rootDir>/client/src/components/Route/Private.js",
+    "<rootDir>/client/src/components/Routes/Private.js",
     "<rootDir>/client/src/components/*.js",
     "<rootDir>/client/src/context/*.js",
     "<rootDir>/client/src/hooks/*.js", 
@@ -45,4 +46,10 @@ export default {
       lines: 90,
     },
   },
+
+  coverageDirectory: "coverage/frontend",
+
+  coverageReporters: ["json", "lcov", "text", "clover"],
+
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"]
 };
