@@ -17,17 +17,19 @@ export default {
   // "<rootDir>/client/src/pages/**/*.test.js"
   // set to only admin for local testing
   testMatch: ["<rootDir>/client/src/components/Form/*.test.js",
-    "<rootDir>/client/src/components/Route/Private.test.js",
+    "<rootDir>/client/src/components/Routes/Private.test.js",
     "<rootDir>/client/src/components/*.test.js",
     "<rootDir>/client/src/context/*.test.js",
     "<rootDir>/client/src/hooks/*.test.js", 
     "<rootDir>/client/src/pages/**/*.test.js",
-    "<rootDir>/client/src/pages/*.test.js"],
+    "<rootDir>/client/src/pages/*.test.js",
+    "<rootDir>/integration-tests/*.test.js"
+  ],
 
   // jest code coverage
   collectCoverage: true,
   collectCoverageFrom: ["<rootDir>/client/src/components/Form/*.js",
-    "<rootDir>/client/src/components/Route/Private.js",
+    "<rootDir>/client/src/components/Routes/Private.js",
     "<rootDir>/client/src/components/*.js",
     "<rootDir>/client/src/context/*.js",
     "<rootDir>/client/src/hooks/*.js", 
@@ -42,4 +44,10 @@ export default {
       lines: 90,
     },
   },
+
+  coverageDirectory: "coverage/frontend",
+
+  coverageReporters: ["json", "lcov", "text", "clover"],
+
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"]
 };
