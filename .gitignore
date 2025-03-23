@@ -9,3 +9,6 @@ coverage.json
 coverage.lcov
 lcov-report/
 .env
+.scannerwork/report-task.txt
+sonar-project.properties
+.scannerwork/scanner-report/analysis.log

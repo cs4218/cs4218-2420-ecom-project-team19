@@ -169,9 +169,23 @@ export const updateProfileController = async (req, res) => {
   try {
     const { name, email, password, address, phone } = req.body;
     const user = await userModel.findById(req.user._id);
+    //Bug fix: should check for empty fields
+    //name
+    if (name && name.trim().length < 1) {
+      return res.status(400).json({ error: "Name cannot be left blank" });
+    }
+    //phone
+    if (phone && phone.trim().length < 1) {
+      return res.status(400).json({ error: "Phone cannot be left blank" });
+    }
+    //address
+    if (address && address.trim().length < 1) {
+      return res.status(400).json({ error: "Address cannot be left blank" });
+    }
+    //Bug fix: should return status code 400
     //password
     if (password && password.length < 6) {
-      return res.json({ error: "Password must be at least 6 characters long" });
+      return res.status(400).json({ error: "Password must be at least 6 characters long" });
     }
     const hashedPassword = password ? await hashPassword(password) : undefined;
     const updatedUser = await userModel.findByIdAndUpdate(
@@ -223,7 +237,7 @@ export const getAllOrdersController = async (req, res) => {
       .find({})
       .populate("products", "-photo")
       .populate("buyer", "name")
-      .sort({ createdAt: "-1" });
+      .sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
     console.log(error);

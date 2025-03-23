@@ -45,7 +45,7 @@ describe("Given createCategoryController", () => {
 
         await createCategoryController(request, response);
 
-        expect(response.status).toHaveBeenCalledWith(200);
+        expect(response.status).toHaveBeenCalledWith(409);
         expect(response.send).toHaveBeenCalledWith({
             success: false,
             message: "Category Already Exists"
@@ -119,7 +119,7 @@ describe("Given updateCategoryController", () => {
         expect(response.status).toHaveBeenCalledWith(200);
         expect(response.send).toHaveBeenCalledWith({
             success: true,
-            messsage: "Category Updated Successfully",
+            message: "Category Updated Successfully",
             category: updatedCategory
         });
     });
