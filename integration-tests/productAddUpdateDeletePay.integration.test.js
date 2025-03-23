@@ -1,6 +1,5 @@
 import request from "supertest";
 import mongoose from "mongoose";
-// import { MongoMemoryServer } from "mongodb-memory-server";
 import JWT from "jsonwebtoken";
 import fs from "fs";
 import path from "path";
@@ -17,6 +16,10 @@ describe("Product Controller Integration Tests", () => {
   let admin;
   let adminToken;
   let category;
+
+  let createdProductIds = [];
+  let createdUserIds = [];
+  let createdCategoryIds = [];
 
   beforeAll(async () => {
     // mongoServer = await MongoMemoryServer.create();
@@ -45,18 +48,24 @@ describe("Product Controller Integration Tests", () => {
       answer: "Admin",
       role: 1,
     });
+    createdUserIds.push(admin._id);
 
     adminToken = JWT.sign({ _id: admin._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
     category = await categoryModel.create({ name: "Electronics" });
+    createdCategoryIds.push(category._id);
   });
 
   afterEach(async () => {
-    await userModel.deleteMany();
-    await categoryModel.deleteMany();
-    await productModel.deleteMany();
+    await productModel.deleteMany({ _id: { $in: createdProductIds } });
+    await userModel.deleteMany({ _id: { $in: createdUserIds } });
+    await categoryModel.deleteMany({ _id: { $in: createdCategoryIds } });
+
+    createdProductIds = [];
+    createdUserIds = [];
+    createdCategoryIds = [];
   });
 
   it("should create a product successfully", async () => {
@@ -77,6 +86,9 @@ describe("Product Controller Integration Tests", () => {
     expect(res.body.success).toBe(true);
     expect(res.body.message).toBe("Product Created Successfully");
     expect(res.body.products).toHaveProperty("_id");
+
+    createdProductIds.push(res.body.products._id);
+
     expect(res.body.products.name).toBe("Test Product");
   });
 
@@ -92,7 +104,7 @@ describe("Product Controller Integration Tests", () => {
 
   it("should update a product successfully", async () => {
     const imagePath = path.join(__dirname, "../test-photos/test-image.png");
-  
+
     // Step 1: Create the product first
     const createRes = await request(app)
       .post("/api/v1/product/create-product")
@@ -104,9 +116,10 @@ describe("Product Controller Integration Tests", () => {
       .field("quantity", "5")
       .field("shipping", "true")
       .attach("photo", imagePath);
-  
+
     const productId = createRes.body.products._id;
-  
+    createdProductIds.push(productId);
+
     // Step 2: Update the product
     const updateRes = await request(app)
       .put(`/api/v1/product/update-product/${productId}`)
@@ -118,7 +131,7 @@ describe("Product Controller Integration Tests", () => {
       .field("quantity", "8")
       .field("shipping", "false")
       .attach("photo", imagePath); // Optional: include updated image
-  
+
     // Step 3: Assertions
     expect(updateRes.status).toBe(201);
     expect(updateRes.body.success).toBe(true);
@@ -130,7 +143,7 @@ describe("Product Controller Integration Tests", () => {
 
   it("should delete a product successfully", async () => {
     const imagePath = path.join(__dirname, "../test-photos/test-image.png");
-  
+
     // Step 1: Create the product
     const createRes = await request(app)
       .post("/api/v1/product/create-product")
@@ -142,18 +155,18 @@ describe("Product Controller Integration Tests", () => {
       .field("quantity", "3")
       .field("shipping", "true")
       .attach("photo", imagePath);
-  
+
     const productId = createRes.body.products._id;
-  
+
     // Step 2: Delete the product
     const deleteRes = await request(app)
       .delete(`/api/v1/product/delete-product/${productId}`)
       .set("Authorization", adminToken);
-  
+
     expect(deleteRes.status).toBe(200);
     expect(deleteRes.body.success).toBe(true);
     expect(deleteRes.body.message).toBe("Product Deleted successfully");
-  
+
     // Step 3: Ensure product is no longer in DB
     const productInDb = await productModel.findById(productId);
     expect(productInDb).toBeNull();
@@ -162,7 +175,7 @@ describe("Product Controller Integration Tests", () => {
   it("should complete a payment successfully", async () => {
     // Step 1: Create a product to use in cart
     const imagePath = path.join(__dirname, "../test-photos/test-image.png");
-  
+
     const createRes = await request(app)
       .post("/api/v1/product/create-product")
       .set("Authorization", adminToken)
@@ -173,21 +186,22 @@ describe("Product Controller Integration Tests", () => {
       .field("quantity", "2")
       .field("shipping", "true")
       .attach("photo", imagePath);
-  
+
     const product = createRes.body.products;
-  
+    createdProductIds.push(product._id);
+
     // Step 2: Fetch Braintree token
     const tokenRes = await request(app)
       .get("/api/v1/product/braintree/token")
       .set("Authorization", adminToken);
-  
+
     expect(tokenRes.status).toBe(200);
     const clientToken = tokenRes.body.clientToken;
     expect(clientToken).toBeDefined();
-  
+
     // Step 3: Simulate payment
     const fakeNonce = "fake-valid-nonce"; // Use "fake-valid-nonce" for Braintree sandbox testing
-  
+
     const paymentRes = await request(app)
       .post("/api/v1/product/braintree/payment")
       .set("Authorization", adminToken)
@@ -201,8 +215,8 @@ describe("Product Controller Integration Tests", () => {
           },
         ],
       });
-  
+
     expect(paymentRes.status).toBe(200);
     expect(paymentRes.body.ok).toBe(true);
-  });  
+  });
 });
