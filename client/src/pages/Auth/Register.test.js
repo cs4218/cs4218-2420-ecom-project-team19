@@ -66,12 +66,12 @@ describe('Register Component', () => {
     fireEvent.change(getByPlaceholderText('Enter Your Phone'), { target: { value: '1234567890' } });
     fireEvent.change(getByPlaceholderText('Enter Your Address'), { target: { value: '123 Street' } });
     fireEvent.change(getByPlaceholderText('Enter Your DOB'), { target: { value: '2000-01-01' } });
-    fireEvent.change(getByPlaceholderText('What is Your Favorite sports'), { target: { value: 'Football' } });
+    fireEvent.change(getByPlaceholderText('What is Your Favorite Sports'), { target: { value: 'Football' } });
 
     fireEvent.click(getByText('REGISTER'));
 
     await waitFor(() => expect(axios.post).toHaveBeenCalled());
-    expect(toast.success).toHaveBeenCalledWith('Register Successfully, please login');
+    expect(toast.success).toHaveBeenCalledWith('Registered successfully, please login.');
   });
 
   it('should display error message on failed registration', async () => {
@@ -91,7 +91,7 @@ describe('Register Component', () => {
     fireEvent.change(getByPlaceholderText('Enter Your Phone'), { target: { value: '1234567890' } });
     fireEvent.change(getByPlaceholderText('Enter Your Address'), { target: { value: '123 Street' } });
     fireEvent.change(getByPlaceholderText('Enter Your DOB'), { target: { value: '2000-01-01' } });
-    fireEvent.change(getByPlaceholderText('What is Your Favorite sports'), { target: { value: 'Football' } });
+    fireEvent.change(getByPlaceholderText('What is Your Favorite Sports'), { target: { value: 'Football' } });
 
     fireEvent.click(getByText('REGISTER'));
 

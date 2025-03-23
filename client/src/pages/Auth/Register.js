@@ -28,7 +28,7 @@ const Register = () => {
         answer,
       });
       if (res && res.data.success) {
-        toast.success("Register Successfully, please login");
+        toast.success("Registered successfully, please login.");
         navigate("/login");
       } else {
         toast.error(res.data.message);
@@ -63,7 +63,7 @@ const Register = () => {
               onChange={(e) => setEmail(e.target.value)}
               className="form-control"
               id="exampleInputEmail1"
-              placeholder="Enter Your Email "
+              placeholder="Enter Your Email"
               required
             />
           </div>
@@ -95,7 +95,7 @@ const Register = () => {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               className="form-control"
-              id="exampleInputaddress1"
+              id="exampleInputAddress1"
               placeholder="Enter Your Address"
               required
             />
@@ -117,8 +117,8 @@ const Register = () => {
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               className="form-control"
-              id="exampleInputanswer1"
-              placeholder="What is Your Favorite sports"
+              id="exampleInputAnswer1"
+              placeholder="What is Your Favorite Sports"
               required
             />
           </div>
