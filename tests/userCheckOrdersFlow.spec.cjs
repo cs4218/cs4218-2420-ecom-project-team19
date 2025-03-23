@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 
 /*
 Database Setup:
-User with email: user@tests.com, password: usertests
+User with name: user tests, email: user@tests.com, password: usertests
 */
 
 test.use({ launchOptions: { slowMo: 500 } });

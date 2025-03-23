@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 /*
 Database Setup:
-User with email: user@tests.com, password: usertests
+User with name: user tests, email: user@tests.com, password: usertests
 */
 
 test.use({ launchOptions: { slowMo: 500 } });
