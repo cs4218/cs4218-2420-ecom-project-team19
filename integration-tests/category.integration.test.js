@@ -19,8 +19,6 @@ describe('Given Category Controller', () => {
         const mongoUri = mongoServer.getUri();
 
         await mongoose.connect(mongoUri);
-        
-        //await mongoose.connect(process.env.MONGO_URL);
 
         admin = await userModel.create({
             name: "Admin",

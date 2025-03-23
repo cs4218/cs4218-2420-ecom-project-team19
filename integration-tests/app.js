@@ -2,11 +2,8 @@ import express from 'express';
 import categoryRoutes from '../routes/categoryRoutes';
 import authRoutes from '../routes/authRoute.js';
 import dotenv from 'dotenv';
-import connectDB from "../config/db.js";
 
 dotenv.config(); // load .env
-
-//connectDB();
 
 const app = express();
 
