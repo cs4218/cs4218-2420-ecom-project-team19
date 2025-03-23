@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Layout from "./../components/Layout";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useCart } from "../context/cart";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCart } from "../context/cart";
 import "../styles/ProductDetailsStyles.css";
