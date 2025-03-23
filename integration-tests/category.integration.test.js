@@ -128,31 +128,6 @@ describe('Given Category Controller', () => {
         expect(updateRes.body.category.slug).toBe("updated");
     });
 
-    /*
-    test('When a category is updated to have empty name', async () => {
-        const newCategory = await categoryModel({
-            name: "Cat1",
-            slug: "cat1",
-        });
-        
-        const res = await request(app)
-            .post('/api/v1/category/create-category')
-            .set("Authorization", JWToken)
-            .send({ name: newCategory.name });
-
-        const categoryId = res.body.category._id;
-
-        // Update newly added category
-        const updateRes = await request(app)
-            .put(`/api/v1/category/update-category/${categoryId}`)
-            .set("Authorization", JWToken)
-            .send({ name: '  '});
-
-        expect(updateRes.status).toBe(500);
-        expect(updateRes.body.message).toBe('Error while updating category');
-    });
-    */
-
     test('When a category is updated to have the same name as existing category', async () => {
         // Create "Existing" category
         await request(app)
