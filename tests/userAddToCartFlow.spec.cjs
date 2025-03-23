@@ -5,10 +5,31 @@ Database Setup:
 User with name: user tests, email: user@tests.com, password: usertests
 */
 
+const testUser = {
+  name: 'user tests',
+  email: 'user@tests.com',
+  password: 'usertests',
+  address: '567 orchard road',
+  phone: '81234567',
+  dob: '2025-03-01',
+  sport: 'badminton'
+}
+
 test.use({ launchOptions: { slowMo: 500 } });
 
 test.describe("UI - Add to Cart Flow", () => {
   test.beforeEach(async ({ page }) => {
+    await page.goto('http://localhost:3000/');
+    await page.getByRole('link', { name: 'Register' }).click();
+    await page.getByPlaceholder('Enter Your Name').fill(testUser.name);
+    await page.getByPlaceholder('Enter Your Email').fill(testUser.email);
+    await page.getByPlaceholder('Enter Your Password').fill(testUser.password);
+    await page.getByPlaceholder('Enter Your Phone').fill(testUser.phone);
+    await page.getByPlaceholder('Enter Your Address').fill(testUser.address);
+    await page.getByPlaceholder('Enter Your DOB').fill(testUser.dob);
+    await page.getByRole('textbox', { name: 'What is Your Favorite sports' }).fill(testUser.sport);
+    await page.getByRole('button', { name: 'REGISTER' }).click();
+
     await page.goto("http://localhost:3000/");
     await page.getByText("LOGIN").click();
     await page.getByPlaceholder("Enter Your Email").fill("user@tests.com");
@@ -47,7 +68,7 @@ test('login -> add to cart -> inspect cart -> remove item -> logout', async ({ p
     await expect(page.getByRole('img', { name: 'Novel' })).toBeVisible();
     await expect(page.getByText('Novel', { exact: true })).toBeVisible();
     await expect(page.getByText('A bestselling novel')).toBeVisible();
-    await expect(page.getByText('Price : 15')).toBeVisible();
+    await expect(page.getByText('Price : 14.99')).toBeVisible();
     
     // smartphone 
     await expect(page.getByRole('img', { name: 'Smartphone' })).toBeVisible();
@@ -62,10 +83,10 @@ test('login -> add to cart -> inspect cart -> remove item -> logout', async ({ p
     await expect(page.getByText('Price : 1499.99')).toBeVisible();
 
     // check total
-    await expect(page.getByRole('main')).toContainText('Total : $2,514.98');
+    await expect(page.getByRole('main')).toContainText('Total : $2,514.97');
 
     // remove item
-    await page.locator('div').filter({ hasText: /^NovelA bestselling novelPrice : 15Remove$/ }).getByRole('button').click();
+    await page.locator('div').filter({ hasText: /^NovelA bestselling novelPrice : 14.99Remove$/ }).getByRole('button').click();
 
     // inspect item removed
     await expect(page.locator('h1')).toContainText('Hello user testsYou Have 2 items in your cart');
@@ -124,7 +145,7 @@ test('login -> filter -> add to cart -> inspect cart -> logout', async ({ page }
       await expect(page.locator('h1')).toContainText('Product Details');
       await expect(page.getByRole('main')).toContainText('Name : Novel');
       await expect(page.getByRole('main')).toContainText('Description : A bestselling novel');
-      await expect(page.getByRole('main')).toContainText('Price :$15.00');
+      await expect(page.getByRole('main')).toContainText('Price :$14.99');
       await expect(page.getByRole('main')).toContainText('Category : Book');
       await expect(page.getByRole('img', { name: 'Novel' })).toBeVisible();
       await page.getByRole('button', { name: 'ADD TO CART' }).first().click();
@@ -150,7 +171,7 @@ test('login -> filter -> add to cart -> inspect cart -> logout', async ({ page }
       // check product 1
       await expect(page.getByRole('main')).toContainText('Novel');
       await expect(page.getByRole('main')).toContainText('A bestselling novel');
-      await expect(page.getByRole('main')).toContainText('Price : 15');
+      await expect(page.getByRole('main')).toContainText('Price : 14.99');
       await expect(page.getByRole('img', { name: 'Novel' })).toBeVisible();
 
       // check product 2
@@ -161,10 +182,10 @@ test('login -> filter -> add to cart -> inspect cart -> logout', async ({ page }
 
       // check total
       await expect(page.locator('h2')).toContainText('Cart Summary');
-      await expect(page.getByRole('main')).toContainText('Total : $69.99');
+      await expect(page.getByRole('main')).toContainText('Total : $69.98');
 
       // remove from cart
-      await page.locator('div').filter({ hasText: /^NovelA bestselling novelPrice : 15Remove$/ }).getByRole('button').click();
+      await page.locator('div').filter({ hasText: /^NovelA bestselling novelPrice : 14.99Remove$/ }).getByRole('button').click();
       await page.getByRole('button', { name: 'Remove' }).click();
     });
 });
