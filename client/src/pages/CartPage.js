@@ -63,19 +63,18 @@ const CartPage = () => {
   const handlePayment = async () => {
     try {
       setLoading(true);
-      console.log("🔹 handlePayment() called");
+      console.log("handlePayment() called");
       if (!instance) {
-        console.log("🚨 instance is undefined! Payment cannot proceed.");
         return;
       }
       const { nonce } = await instance.requestPaymentMethod();
-      console.log("✅ Payment nonce received:", nonce);
+      console.log("Payment nonce received:", nonce);
       const { data } = await axios.post("/api/v1/product/braintree/payment", {
         nonce,
         cart,
       });
       setLoading(false);
-      console.log("✅ Payment request successful:", data);
+      console.log("Payment request successful:", data);
       localStorage.removeItem("cart");
       setCart([]);
       navigate("/dashboard/user/orders");
@@ -177,17 +176,17 @@ const CartPage = () => {
               )}
               <div className="mt-2">
                 {!clientToken || !auth?.token || !cart?.length ? (
-                  ""
+                  <div data-testid="dropin-skip" />
                 ) : (
                   <>
-                    <DropIn
+                    <div data-testid="dropin-start" />
+                    <DropIn 
                       data-testid="braintree-dropin"
                       options={{
                         authorization: clientToken,
                         paypal: { flow: "vault" },
                       }}
                       onInstance={(inst) => {
-                        console.log("DropIn instance set:", inst);
                         setInstance(inst);
                       }}
                     />

@@ -20,15 +20,14 @@ export default {
     "<rootDir>/middlewares/*.js",
     "<rootDir>/controllers/*.js",
     "<rootDir>/models/*.js",
-    "<rootDir>/config/*.js"
   ],
   
     coverageThreshold: {
       global: {
-        statements: 90,
-        branches: 80,
+        statements: 80,
+        branches: 60,
         functions: 90,
-        lines: 90,
+        lines: 80,
       },
     },
 

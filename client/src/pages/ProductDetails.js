@@ -4,6 +4,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useCart } from "../context/cart";
 import { useParams, useNavigate } from "react-router-dom";
+import { useCart } from "../context/cart";
 import "../styles/ProductDetailsStyles.css";
 
 const ProductDetails = () => {
@@ -71,16 +72,22 @@ const ProductDetails = () => {
           </h6>
           <h6>Category : {product?.category?.name || "N/A"}</h6>
           <button
-                      className="btn btn-dark ms-1"
-                      onClick={() => {
-                        const updatedCart = [...(JSON.parse(localStorage.getItem("cart")) || []), product];
-                        setCart(updatedCart);
-                        localStorage.setItem("cart", JSON.stringify(updatedCart));
-                        toast.success("Item Added to Cart");
-                      }}
-                    >
-                      ADD TO CART
-                    </button>
+            className="btn btn-dark ms-1"
+            onClick={() => {
+              setCart((prevCart) => {
+                const updatedCart = [...prevCart, product];
+                localStorage.setItem("cart", JSON.stringify(updatedCart));
+    
+                // Show toast only if it's not already in the cart
+                if (!prevCart.some((item) => item._id === product._id)) {
+                  toast.success("Item Added to Cart", { id: `cart-toast-${product._id}` });
+                }
+                return updatedCart;
+              });
+            }}
+          >
+            ADD TO CART
+          </button>
         </div>
       </div>
       <hr />
