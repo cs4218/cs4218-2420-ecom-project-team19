@@ -4,6 +4,9 @@
 
 ## Integration Tests
 
+### How to run integration tests
+The integration tests are added into the frontend and backend config files. Run ```npm run test``` to run.
+
 ### BHANUKA BANDARA EKANAYAKE
 - integration-tests/productAddUpdateDeletePay.integration.test.js
 
@@ -22,6 +25,13 @@
 - /integration-tests/Orders.integration.test.js
 
 ## UI Tests
+
+### How to run UI tests
+The UI tests are added under `./tests/`.
+
+Ensure that your database has a User with name: user tests, email: user@tests.com, password: usertests. If it doesn't, register the user first.
+
+Run `npx playwright test` to run the tests.
 
 ### BHANUKA BANDARA EKANAYAKE
 - tests/paymentTest.spec.cjs

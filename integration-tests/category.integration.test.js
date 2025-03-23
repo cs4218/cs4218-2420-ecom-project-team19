@@ -93,9 +93,9 @@ describe('Given Category Controller', () => {
             .set("Authorization", JWToken)
             .send({ name: duplicateCategory.name });
 
-        expect(res1.status).toBe(201);
+        expect(res.status).toBe(201);
         expect(res.body.category.name).toBe(duplicateCategory.name);
-        createdCategoryIds.push(res1.body.category._id);
+        createdCategoryIds.push(res.body.category._id);
 
         // Create duplicate category
         const res2 = await request(app)
@@ -114,7 +114,7 @@ describe('Given Category Controller', () => {
             slug: "cat1",
         });
         
-        const res = await request(app)
+        const createRes = await request(app)
             .post('/api/v1/category/create-category')
             .set("Authorization", JWToken)
             .send({ name: newCategory.name });
@@ -150,7 +150,7 @@ describe('Given Category Controller', () => {
             .send({ name: "Computer" });
 
         const categoryId = createRes.body.category._id;
-        createdCategoryIds.push(res1.body.category._id, categoryId2);
+        createdCategoryIds.push(categoryId);
         
         // Update newly added category to have same name as existing category
         const updateRes = await request(app)
@@ -168,7 +168,7 @@ describe('Given Category Controller', () => {
             slug: "cat1",
         });
         
-        // Create category to be deletec
+        // Create category to be deleted
         const res = await request(app)
             .post('/api/v1/category/create-category')
             .set("Authorization", JWToken)
