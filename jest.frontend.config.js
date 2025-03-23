@@ -29,7 +29,7 @@ export default {
   ],
 
   // jest code coverage
-  collectCoverage: true,
+  collectCoverage: false,
   collectCoverageFrom: ["<rootDir>/client/src/components/Form/*.js",
     "<rootDir>/client/src/components/Routes/Private.js",
     "<rootDir>/client/src/components/*.js",

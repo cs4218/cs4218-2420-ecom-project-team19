@@ -1,7 +1,7 @@
 /* eslint-disable testing-library/no-wait-for-multiple-assertions */
 /* eslint-disable testing-library/no-unnecessary-act */
 import React from "react";
-import { render, screen, waitFor, fireEvent, act, cleanup } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent, act, cleanup, within } from "@testing-library/react";
 import HomePage from "../../pages/HomePage";
 import ProductDetails from "../../pages/ProductDetails";
 import axios from "axios";
@@ -93,13 +93,18 @@ describe("HomePage Integration Tests", () => {
 
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        const addToCartButton = await screen.findAllByRole("button", { name: "ADD TO CART" });
-        fireEvent.click(addToCartButton[0]);
+        const allCards = screen.getAllByRole("heading", { level: 5 }); // h5.card-title
+        const shirtCard = allCards.find(card => card.textContent.includes("NUS T-shirt"));
 
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        expect(shirtCard).toBeDefined();
+        const cardBody = shirtCard.closest(".card-body");
+        const addToCartBtn = within(cardBody).getByRole("button", { name: "ADD TO CART" });
+
+        fireEvent.click(addToCartBtn);
 
         await waitFor(() => {
             expect(localStorage.getItem("cart")).toContain("NUS T-shirt");
+            expect(screen.getByText("Item Added to Cart")).toBeInTheDocument();
         });
 
         expect(screen.getByText("Item Added to Cart")).toBeInTheDocument();
@@ -123,17 +128,21 @@ describe("HomePage Integration Tests", () => {
             );
         });
 
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
 
         await waitFor(() => {
             expect(screen.getByText("All Products")).toBeInTheDocument();
         });
-        const viewProductButton = await screen.findAllByRole("button", { name: /View Product/i });
+        const allCards = screen.getAllByRole("heading", { level: 5 }); // h5.card-title
+        const shirtCard = allCards.find(card => card.textContent.includes("NUS T-shirt"));
+        expect(shirtCard).toBeDefined();
+        const cardBody = shirtCard.closest(".card-body");
+        const viewBtn = within(cardBody).getByRole("button", { name: /View Product/i });
         await act(() => {
-            fireEvent.click(viewProductButton[0]);
+            fireEvent.click(viewBtn);
         });
 
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
 
         await waitFor(() => {
             expect(screen.getByText("Name : NUS T-shirt")).toBeInTheDocument();
@@ -164,9 +173,14 @@ describe("HomePage Integration Tests", () => {
         await waitFor(() => {
             expect(screen.getByText("All Products")).toBeInTheDocument();
         });
-        const viewProductButton = await screen.findAllByRole("button", { name: /View Product/i });
+
+        const allCards = screen.getAllByRole("heading", { level: 5 }); // h5.card-title
+        const shirtCard = allCards.find(card => card.textContent.includes("NUS T-shirt"));
+        expect(shirtCard).toBeDefined();
+        const cardBody = shirtCard.closest(".card-body");
+        const viewBtn = within(cardBody).getByRole("button", { name: /View Product/i });
         await act(() => {
-            fireEvent.click(viewProductButton[0]);
+            fireEvent.click(viewBtn);
         });
 
         await new Promise((resolve) => setTimeout(resolve, 1000));
