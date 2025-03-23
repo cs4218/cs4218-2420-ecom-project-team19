@@ -24,12 +24,12 @@ export default {
     "<rootDir>/client/src/hooks/*.test.js", 
     "<rootDir>/client/src/pages/**/*.test.js",
     "<rootDir>/client/src/pages/*.test.js",
-    "<rootDir>/client/src/pages/integrationTests/*.test.js",
+    "<rootDir>/client/src/pages/integrationTests/Homepage.test.js",
     "<rootDir>/integration-tests/*.test.js"
   ],
 
   // jest code coverage
-  collectCoverage: true,
+  collectCoverage: false,
   collectCoverageFrom: ["<rootDir>/client/src/components/Form/*.js",
     "<rootDir>/client/src/components/Routes/Private.js",
     "<rootDir>/client/src/components/*.js",
