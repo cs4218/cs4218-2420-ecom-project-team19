@@ -86,6 +86,10 @@ test.describe("Given Profile and valid changes", () => {
         await page.waitForURL('http://localhost:3000/');
 
         await expect(page.getByRole('button', { name: 'USERB' })).toBeVisible();
+
+        // logout
+        await page.getByRole('button', { name: 'USERB' }).click();
+        await page.getByRole('link', { name: 'Logout' }).click();
     });
 });
 
