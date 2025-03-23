@@ -54,7 +54,7 @@ describe("Product Controller Integration Tests", () => {
       expiresIn: "7d",
     });
 
-    category = await categoryModel.create({ name: "Electronics" });
+    category = await categoryModel.create({ name: "Test Category" });
     createdCategoryIds.push(category._id);
   });
 
