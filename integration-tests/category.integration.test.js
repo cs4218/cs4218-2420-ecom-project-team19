@@ -5,7 +5,6 @@ import app from './app';
 import JWT from 'jsonwebtoken';
 
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import dotenv from "dotenv";
 import userModel from "../models/userModel.js";
 
 let mongoServer;
@@ -20,8 +19,6 @@ describe('Given Category Controller', () => {
         const mongoUri = mongoServer.getUri();
 
         await mongoose.connect(mongoUri);
-        
-        //await mongoose.connect(process.env.MONGO_URL);
 
         admin = await userModel.create({
             name: "Admin",
@@ -69,6 +66,11 @@ describe('Given Category Controller', () => {
         expect(res.body.category.slug).toBe(newCategory.slug);
 
         createdCategoryIds.push(res.body.category._id);
+
+        // check categoryModel
+        const updatedCat = await categoryModel.findById(res.body.category._id);
+        expect(updatedCat.name).toBe(newCategory.name);
+        expect(updatedCat.slug).toBe(newCategory.slug);
     });
 
     test('When given category name is empty', async () => {
@@ -133,6 +135,11 @@ describe('Given Category Controller', () => {
         expect(updateRes.body.message).toBe('Category Updated Successfully');
         expect(updateRes.body.category).toHaveProperty('_id');
         expect(updateRes.body.category.name).toBe("Updated");
+        expect(updateRes.body.category.slug).toBe("updated");
+
+        // check categoryModel
+        const updatedCat = await categoryModel.findById(categoryId);
+        expect(updatedCat.name).toBe("Updated");
         expect(updateRes.body.category.slug).toBe("updated");
     });
 
