@@ -1,5 +1,46 @@
 # E-commerce Website 
 
+# Milestone 2 Contributions
+
+## Integration Tests
+
+### BHANUKA BANDARA EKANAYAKE
+- integration-tests/productAddUpdateDeletePay.integration.test.js
+
+### HMUU MYAT MOE
+- integration-tests/category.integration.test.js
+
+### JEROME SEET HOW EE
+- client/src/pages/integrationTests/CartPage.test.js
+- client/src/pages/integrationTests/Homepage.test.js
+- client/src/pages/integrationTests/Search.test.js
+
+### LAVANYA MISHRA
+
+### NG JIA YI
+- /client/src/pages/integration-tests/Cart.integration.test.js
+- /integration-tests/Orders.integration.test.js
+
+## UI Tests
+
+### BHANUKA BANDARA EKANAYAKE
+- tests/paymentTest.spec.cjs
+- tests/adminProductAddUpdateDelete.spec.cjs
+
+### HMUU MYAT MOE
+- /tests/categoryFlow.spec.cjs
+- /tests/profile.spec.cjs
+
+### JEROME SEET HOW EE
+- tests/search.spec.js
+- tests/homepage.spec.js
+
+### LAVANYA MISHRA
+
+### NG JIA YI
+- /tests/userAddToCartFlow.spec.cjs
+- /tests/userCheckOrdersFlow.spec.cjs
+
 ## Prerequisites
 
 Make sure you have the following installed:
