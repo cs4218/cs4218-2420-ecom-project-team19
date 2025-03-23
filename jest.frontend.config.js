@@ -18,7 +18,7 @@ export default {
   // set to only admin for local testing
   testMatch: [
     "<rootDir>/client/src/components/Form/*.test.js",
-    "<rootDir>/client/src/components/Route/Private.test.js",
+    "<rootDir>/client/src/components/Routes/Private.test.js",
     "<rootDir>/client/src/components/*.test.js",
     "<rootDir>/client/src/context/*.test.js",
     "<rootDir>/client/src/hooks/*.test.js", 
