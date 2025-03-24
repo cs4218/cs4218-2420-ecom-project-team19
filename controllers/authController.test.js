@@ -19,7 +19,7 @@ describe('Auth Controller', () => {
   describe('registerController', () => {
     it('should return error if name is missing', async () => {
       const req = { body: { email: 'test@test.com', password: 'password', phone: '1234567890', address: 'address', answer: 'answer' } };
-      const res = { send: jest.fn() };
+      const res = { send: jest.fn(), status: jest.fn().mockReturnThis() };
 
       await registerController(req, res);
 
@@ -28,7 +28,7 @@ describe('Auth Controller', () => {
 
     it('should return error if email is missing', async () => {
       const req = { body: { name: 'name', password: 'password', phone: '1234567890', address: 'address', answer: 'answer' } };
-      const res = { send: jest.fn() };
+      const res = { send: jest.fn(), status: jest.fn().mockReturnThis() };
 
       await registerController(req, res);
 
@@ -37,7 +37,7 @@ describe('Auth Controller', () => {
 
     it('should return error if password is missing', async () => {
       const req = { body: { name: 'name', email: 'test@test.com', phone: '1234567890', address: 'address', answer: 'answer' } };
-      const res = { send: jest.fn() };
+      const res = { send: jest.fn(), status: jest.fn().mockReturnThis() };
 
       await registerController(req, res);
 
@@ -46,7 +46,7 @@ describe('Auth Controller', () => {
 
     it('should return error if phone is missing', async () => {
       const req = { body: { name: 'name', email: 'test@test.com', password: 'password', address: 'address', answer: 'answer' } };
-      const res = { send: jest.fn() };
+      const res = { send: jest.fn(), status: jest.fn().mockReturnThis() };
 
       await registerController(req, res);
 
@@ -55,7 +55,7 @@ describe('Auth Controller', () => {
 
     it('should return error if address is missing', async () => {
       const req = { body: { name: 'name', email: 'test@test.com', password: 'password', phone: '1234567890', answer: 'answer' } };
-      const res = { send: jest.fn() };
+      const res = { send: jest.fn(), status: jest.fn().mockReturnThis() };
 
       await registerController(req, res);
 
@@ -64,7 +64,7 @@ describe('Auth Controller', () => {
 
     it('should return error if answer is missing', async () => {
       const req = { body: { name: 'name', email: 'test@test.com', password: 'password', phone: '1234567890', address: 'address' } };
-      const res = { send: jest.fn() };
+      const res = { send: jest.fn(), status: jest.fn().mockReturnThis() };
 
       await registerController(req, res);
 
@@ -312,7 +312,7 @@ describe('Auth Controller', () => {
   describe('testController', () => {
     it('should return protected routes message', () => {
       const req = {};
-      const res = { send: jest.fn() };
+      const res = { send: jest.fn(), status: jest.fn().mockReturnThis() };
 
       testController(req, res);
 
