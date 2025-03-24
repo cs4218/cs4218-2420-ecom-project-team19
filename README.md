@@ -24,6 +24,8 @@ The integration tests are added into the frontend and backend config files. Run 
 
 ### LAVANYA MISHRA
 
+- integration-tests/auth.integration.test.js
+
 ### NG JIA YI
 
 - /client/src/pages/integration-tests/Cart.integration.test.js
@@ -54,6 +56,12 @@ Run `npx playwright test` to run the tests.
 - tests/homepage.spec.js
 
 ### LAVANYA MISHRA
+
+- tests/userLogin.spec.cjs
+- tests/userLogout.spec.cjs
+- tests/forgotPassword.spec.cjs
+- tests/authAdmin.spec.cjs
+- tests/userRegister.spec.csj
 
 ### NG JIA YI
 

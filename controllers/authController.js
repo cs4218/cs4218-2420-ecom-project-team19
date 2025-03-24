@@ -9,22 +9,22 @@ export const registerController = async (req, res) => {
     const { name, email, password, phone, address, answer } = req.body;
     //validations
     if (!name) {
-      return res.send({ error: "Name is required" });
+      return res.status(400).send({ error: "Name is required" });
     }
     if (!email) {
-      return res.send({ error: "Email is required" });
+      return res.status(400).send({ error: "Email is required" });
     }
     if (!password) {
-      return res.send({ error: "Password is required" });
+      return res.status(400).send({ error: "Password is required" });
     }
     if (!phone) {
-      return res.send({ error: "Phone number is required" });
+      return res.status(400).send({ error: "Phone number is required" });
     }
     if (!address) {
-      return res.send({ error: "Address is required" });
+      return res.status(400).send({ error: "Address is required" });
     }
     if (!answer) {
-      return res.send({ error: "Answer is required" });
+      return res.status(400).send({ error: "Answer is required" });
     }
     //check user
     const exisitingUser = await userModel.findOne({ email });
@@ -121,13 +121,13 @@ export const forgotPasswordController = async (req, res) => {
   try {
     const { email, answer, newPassword } = req.body;
     if (!email) {
-      res.status(400).send({ error: "Email is required" });
+      return res.status(400).send({ error: "Email is required" });
     }
     if (!answer) {
-      res.status(400).send({ error: "Answer is required" });
+      return res.status(400).send({ error: "Answer is required" });
     }
     if (!newPassword) {
-      res.status(400).send({ error: "New password is required" });
+      return res.status(400).send({ error: "New password is required" });
     }
     //check
     const user = await userModel.findOne({ email, answer });

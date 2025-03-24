@@ -36,20 +36,40 @@ describe('Auth Middleware', () => {
           authorization: 'invalid-token'
         }
       };
-      const res = {};
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
       const next = jest.fn();
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
 
       JWT.verify.mockImplementation(() => {
-        throw new Error('Invalid token');
+        throw new Error('Invalid or expired token');
       });
 
       await requireSignIn(req, res, next);
 
-      expect(consoleSpy).toHaveBeenCalledWith(new Error('Invalid token'));
+      expect(consoleSpy).toHaveBeenCalledWith(new Error('Invalid or expired token'));
       expect(next).not.toHaveBeenCalled();
 
       consoleSpy.mockRestore();
+    });
+
+    it('should return 401 if token is not provided', async () => {
+      const req = {
+        headers: {}
+      };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn()
+      };
+      const next = jest.fn();
+
+      await requireSignIn(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: 'Token is required'
+      });
+      expect(next).not.toHaveBeenCalled();
     });
   });
 
@@ -93,7 +113,7 @@ describe('Auth Middleware', () => {
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
-        message: 'UnAuthorized Access'
+        message: 'Unauthorized Access'
       });
       expect(next).not.toHaveBeenCalled();
     });
@@ -127,6 +147,31 @@ describe('Auth Middleware', () => {
       expect(next).not.toHaveBeenCalled();
 
       consoleSpy.mockRestore();
+    });
+
+    it('should return 401 if user is not found', async () => {
+      const req = {
+        user: {
+          _id: '123'
+        }
+      };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn()
+      };
+      const next = jest.fn();
+
+      userModel.findById.mockResolvedValue(null);
+
+      await isAdmin(req, res, next);
+
+      expect(userModel.findById).toHaveBeenCalledWith('123');
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: 'User not found'
+      });
+      expect(next).not.toHaveBeenCalledWith();
     });
   });
 });
