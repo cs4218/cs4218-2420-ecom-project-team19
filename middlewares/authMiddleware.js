@@ -4,29 +4,42 @@ import userModel from "../models/userModel.js";
 // Protected routes token base
 export const requireSignIn = async (req, res, next) => {
     try {
-        const decode = JWT.verify(
-            req.headers.authorization,
-            process.env.JWT_SECRET
-        );
+        const token = req.headers.authorization;
+        if (!token) {
+            return res.status(401).send({
+                success: false,
+                message: "Token is required",
+            });
+        }
+        const decode = await JWT.verify(token, process.env.JWT_SECRET);
         req.user = decode;
         next();
     } catch (error) {
         console.log(error);
+        return res.status(401).send({
+            success: false,
+            message: "Invalid or expired token",
+        });
     }
 };
 
-//admin access
+// Admin access
 export const isAdmin = async (req, res, next) => {
     try {
         const user = await userModel.findById(req.user._id);
-        if(user.role !== 1) {
+        if (!user) {
             return res.status(401).send({
                 success: false,
-                message: "UnAuthorized Access",
+                message: "User not found",
             });
-        } else {
-            next();
         }
+        if (user.role !== 1) {
+            return res.status(401).send({
+                success: false,
+                message: "Unauthorized Access",
+            });
+        }
+        next();
     } catch (error) {
         console.log(error);
         res.status(401).send({
