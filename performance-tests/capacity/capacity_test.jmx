@@ -5,55 +5,53 @@
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments"/>
       </elementProp>
-      <boolProp name="TestPlan.functional_mode">false</boolProp>
-      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
     </TestPlan>
     <hashTree>
       <kg.apc.jmeter.threads.UltimateThreadGroup guiclass="kg.apc.jmeter.threads.UltimateThreadGroupGui" testclass="kg.apc.jmeter.threads.UltimateThreadGroup" testname="Users">
         <collectionProp name="ultimatethreadgroupdata">
-          <collectionProp name="-550660932">
+          <collectionProp name="-222704796">
             <stringProp name="1631">32</stringProp>
             <stringProp name="48">0</stringProp>
             <stringProp name="53">5</stringProp>
             <stringProp name="50547">300</stringProp>
             <stringProp name="53">5</stringProp>
           </collectionProp>
-          <collectionProp name="1870395976">
+          <collectionProp name="-1165702540">
             <stringProp name="1631">32</stringProp>
             <stringProp name="1634">35</stringProp>
             <stringProp name="53">5</stringProp>
             <stringProp name="49741">250</stringProp>
             <stringProp name="53">5</stringProp>
           </collectionProp>
-          <collectionProp name="677658296">
+          <collectionProp name="1934470505">
             <stringProp name="1726">64</stringProp>
             <stringProp name="1753">70</stringProp>
             <stringProp name="53">5</stringProp>
             <stringProp name="49586">200</stringProp>
             <stringProp name="53">5</stringProp>
           </collectionProp>
-          <collectionProp name="213631767">
+          <collectionProp name="1438471351">
             <stringProp name="48695">128</stringProp>
             <stringProp name="48630">105</stringProp>
             <stringProp name="53">5</stringProp>
             <stringProp name="48780">150</stringProp>
             <stringProp name="53">5</stringProp>
           </collectionProp>
-          <collectionProp name="-103626774">
+          <collectionProp name="1120148394">
             <stringProp name="49747">256</stringProp>
             <stringProp name="48749">140</stringProp>
             <stringProp name="53">5</stringProp>
             <stringProp name="48692">125</stringProp>
             <stringProp name="53">5</stringProp>
           </collectionProp>
-          <collectionProp name="-730712692">
+          <collectionProp name="492817018">
             <stringProp name="52502">512</stringProp>
             <stringProp name="48847">175</stringProp>
             <stringProp name="53">5</stringProp>
             <stringProp name="48625">100</stringProp>
             <stringProp name="53">5</stringProp>
           </collectionProp>
-          <collectionProp name="-560096485">
+          <collectionProp name="1176573921">
             <stringProp name="1507489">1024</stringProp>
             <stringProp name="49617">210</stringProp>
             <stringProp name="53">5</stringProp>
@@ -468,7 +466,7 @@
           </collectionProp>
           <collectionProp name="">
             <stringProp name="82025960">Users</stringProp>
-            <stringProp name="-400464199">User go to website</stringProp>
+            <stringProp name="1678179690">User Visits Ecommerce Site</stringProp>
           </collectionProp>
         </collectionProp>
       </kg.apc.jmeter.vizualizers.CompositeResultCollector>
@@ -523,7 +521,7 @@
           </collectionProp>
           <collectionProp name="">
             <stringProp name="82025960">Users</stringProp>
-            <stringProp name="2118026996">User login</stringProp>
+            <stringProp name="2088474324">User Login</stringProp>
           </collectionProp>
         </collectionProp>
       </kg.apc.jmeter.vizualizers.CompositeResultCollector>
