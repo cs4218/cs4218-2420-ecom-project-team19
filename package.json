@@ -17,8 +17,10 @@
   "author": "RP",
   "license": "ISC",
   "dependencies": {
+    "@faker-js/faker": "^9.6.0",
     "bcrypt": "^5.1.1",
     "braintree": "^3.22.0",
+    "bson": "^6.10.3",
     "colors": "^1.4.0",
     "concurrently": "^8.2.2",
     "cors": "^2.8.5",
@@ -51,9 +53,9 @@
     "jsdom": "^26.0.0",
     "mongodb-memory-server": "^10.1.4",
     "mongoose": "^8.12.1",
+    "node-mocks-http": "^1.16.2",
     "sonarqube-scanner": "^3.3.0",
-    "supertest": "^7.1.0",
-    "node-mocks-http": "^1.16.2"
+    "supertest": "^7.1.0"
   },
   "jest": {
     "setupFiles": [
