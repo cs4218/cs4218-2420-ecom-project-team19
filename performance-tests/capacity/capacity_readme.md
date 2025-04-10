@@ -5,6 +5,8 @@ Make sure you have the Plugins Manager for JMeter downloaded and installed. If y
 
 Image from [https://jmeter-plugins.org/wiki/PluginsManager/](https://jmeter-plugins.org/wiki/PluginsManager/).
 
+You will need to add the Custom Thread Groups plugin for this, as it is dependent on the Ultiamte Thread Groups plugin.
+
 # How to setup DB environment for this test
 Import the CSV file: `performance-tests\capacity\assets\testUsers_10000_hashed.csv` to the Users collection in MongoDB.
 
